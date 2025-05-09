@@ -53,7 +53,8 @@
         <div class="container">
             <h1>DEMO SITE</h1>
             <p>Testing Invoca Tag and Phone Numbers</p>
-            <a href="tel:+8885558888" class="phone-number">Call Us: +1 (888)-555-8888</a>
+            <a href="tel:+8338033380" class="phone-number">Call Us: > Static Number 833-803-3380</a>
+            <a href="tel:+3018885555" class="phone-number">Call Us: > Static Number 833-803-3380</a> 
         </div>
     </header>
 
