@@ -4,299 +4,282 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoca Demo Landing Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* BASIC RESET & GLOBAL STYLES */
+        /* Modernized Styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #f0f2f5;
             color: #333;
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 960px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        h1, h2, h3 {
-            color: #333;
-        }
-
-        p {
-            line-height: 1.6;
-        }
-
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        /* HEADER STYLES */
         header {
-            background-color: #007bff;
-            color: white;
+            background-color: #ffffff;
+            border-bottom: 1px solid #e0e0e0;
             padding: 15px 0;
-            text-align: center;
-            display: flex; /* For alignment */
-            justify-content: space-between; /* Pushes elements to ends */
-            align-items: center; /* Vertically centers elements */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        header .container {
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px; /* Adjust padding for header container */
         }
 
-        /* HEADER - LOGO/TITLE */
-        .header-left h1 {
+        .logo h1 {
             margin: 0;
-            color: white;
-            font-size: 24px;
+            font-size: 28px;
+            color: #1a1a1a;
         }
 
-        /* HEADER - CLICK-TO-CALL NUMBER */
-        .header-right .phone-number-header {
+        .header-phone {
             font-size: 20px;
             font-weight: bold;
-            color: white; /* Ensure number is white */
-            white-space: nowrap; /* Prevent number from breaking */
         }
 
-        .header-right .phone-number-header a {
-            color: white;
+        .header-phone a {
+            color: #007bff;
             text-decoration: none;
+            transition: color 0.2s ease;
         }
 
-        .header-right .phone-number-header a:hover {
-            text-decoration: underline;
+        .header-phone a:hover {
+            color: #0056b3;
         }
 
-        /* MAIN CONTENT SECTION STYLES */
         .hero-section {
-            background-color: #e9ecef;
-            padding: 60px 20px;
             text-align: center;
-            margin-bottom: 30px;
+            padding: 80px 20px;
+            background-color: #007bff;
+            color: white;
+            margin-bottom: 40px;
         }
 
         .hero-section h2 {
-            font-size: 3em;
-            margin-bottom: 15px;
-        }
-
-        .hero-section p {
-            font-size: 1.2em;
-            max-width: 700px;
-            margin: 0 auto 30px auto;
-        }
-
-        /* PHONE NUMBER SECTION STYLES */
-        .phone-numbers-section {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap; /* Allows wrapping on smaller screens */
-            gap: 20px; /* Space between number boxes */
-            margin-bottom: 40px;
-        }
-
-        .phone-number-box {
-            background-color: white;
-            border: 1px solid #ddd;
-            padding: 25px;
-            text-align: center;
-            flex: 1; /* Allows boxes to grow and shrink */
-            min-width: 280px; /* Minimum width before wrapping */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .phone-number-box h3 {
-            color: #007bff;
+            font-size: 48px;
+            font-weight: 700;
             margin-bottom: 10px;
         }
 
-        .phone-number-box .phone-number-display {
-            font-size: 2em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
+        .hero-section p {
+            font-size: 1.25em;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        .phone-number-box a {
+        .card-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            font-size: 24px;
+            color: #1a1a1a;
+        }
+
+        .card .phone-number-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #007bff;
+            margin: 15px 0;
+        }
+
+        .cta-button {
             display: inline-block;
             background-color: #28a745;
             color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 25px;
+            border-radius: 50px;
             text-decoration: none;
             font-weight: bold;
+            transition: background-color 0.2s ease;
         }
 
-        .phone-number-box a:hover {
+        .cta-button:hover {
             background-color: #218838;
-            text-decoration: none;
         }
 
-        /* FORM SECTION STYLES */
         .form-section {
-            background-color: white;
-            border: 1px solid #ddd;
-            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             margin-bottom: 40px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .form-section h2 {
             text-align: center;
-            margin-bottom: 25px;
-            color: #007bff;
+            color: #1a1a1a;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            flex: 1;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 700;
         }
 
-        .form-group input[type="text"],
-        .form-group input[type="email"],
-        .form-group input[type="tel"],
+        .form-group input,
         .form-group textarea {
-            width: calc(100% - 20px); /* Account for padding */
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box; /* Include padding in width */
-        }
-
-        .form-group textarea {
-            resize: vertical; /* Allow vertical resizing */
-            min-height: 100px;
-        }
-
-        .form-section button {
-            display: block;
             width: 100%;
             padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 15px;
             background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 50px;
             font-size: 18px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.2s ease;
         }
 
-        .form-section button:hover {
+        .submit-button:hover {
             background-color: #0056b3;
-        }
-
-        /* FOOTER STYLES */
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 20px 0;
-            font-size: 0.9em;
-        }
-
-        /* RESPONSIVENESS */
-        @media (max-width: 768px) {
-            header .container {
-                flex-direction: column;
-                gap: 10px;
-            }
-            .header-left h1 {
-                font-size: 20px;
-            }
-            .header-right .phone-number-header {
-                font-size: 18px;
-            }
-            .hero-section h2 {
-                font-size: 2.5em;
-            }
-            .phone-number-box {
-                min-width: 100%; /* Stack on small screens */
-            }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="container">
-            <div class="header-left">
-                <h1>Invoca Demo Site</h1>
+        <div class="container header-content">
+            <div class="logo">
+                <h1>Invoca Demo</h1>
             </div>
-            <div class="header-right">
-                <p class="phone-number-header">Call Us Today: <a href="tel:8001234567">800-123-4567</a></p>
+            <div class="header-phone">
+                Call Us: <a href="tel:8001234567">800-123-4567</a>
             </div>
         </div>
     </header>
 
     <section class="hero-section">
         <div class="container">
-            <h2>Welcome to the Invoca Testing Ground</h2>
-            <p>This is a simple landing page designed to help you test your Invoca numbers, call tracking, and form integrations. Feel free to modify and experiment!</p>
-            <p>Explore our features below or get in touch directly.</p>
+            <h2>Experience Seamless Call Tracking</h2>
+            <p>Test the power of Invoca's call tracking, attribution, and analytics with this simple demo page.</p>
         </div>
     </section>
 
-    <section class="phone-numbers-section container">
-        <div class="phone-number-box">
-            <h3>Need Quick Help?</h3>
-            <p>Our support team is ready to assist you.</p>
+    <section class="card-section container">
+        
+        <div class="card">
+            <h3>Support & Service</h3>
             <p class="phone-number-display" data-invoca-default="888-222-3333">888-222-3333</p>
-            <a href="tel:8882223333">Click to Call Support</a>
+            <a href="tel:8882223333" class="cta-button">Call for Support</a>
         </div>
 
-        <div class="phone-number-box">
-            <h3>Sales Inquiries</h3>
-            <p>Speak with our sales department about our products.</p>
+        <div class="card">
+            <h3>Sales Department</h3>
             <p class="phone-number-display" data-invoca-default="877-444-5555">877-444-5555</p>
-            <a href="tel:8774445555">Click to Call Sales</a>
+            <a href="tel:8774445555" class="cta-button">Call Sales Today</a>
+        </div>
+
+        <div class="card">
+            <h3>General Inquiries</h3>
+            <p class="phone-number-display" data-invoca-default="866-555-6666">866-555-6666</p>
+            <a href="tel:8665556666" class="cta-button">Call Us Now</a>
         </div>
     </section>
 
     <section class="form-section container">
-        <h2>Send Us a Message</h2>
-        <form action="#" method="POST">
-            <div class="form-group">
-                <label for="name">Your Name:</label>
-                <input type="text" id="name" name="name" placeholder="John Doe" required>
+        <h2>Submit an Inquiry</h2>
+        <form id="contact-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" required>
+                </div>
             </div>
             <div class="form-group">
-                <label for="email">Your Email:</label>
-                <input type="email" id="email" name="email" placeholder="john.doe@example.com" required>
+                <label for="form_caller_id">Phone Number</label>
+                <input type="tel" id="form_caller_id" name="form_caller_id" placeholder="(123) 456-7890">
             </div>
             <div class="form-group">
-                <label for="phone">Phone Number (Optional):</label>
-                <input type="tel" id="phone" name="phone" placeholder="(123) 456-7890">
+                <label for="form_message">Message</label>
+                <textarea id="form_message" name="form_message" rows="5"></textarea>
             </div>
-            <div class="form-group">
-                <label for="message">Your Message:</label>
-                <textarea id="message" name="message" placeholder="I'd like to learn more about..."></textarea>
-            </div>
-            <button type="submit">Submit Inquiry</button>
+            <button type="submit" class="submit-button">Submit Inquiry</button>
         </form>
     </section>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2023 Invoca Demo Site. All rights reserved.</p>
-        </div>
-    </footer>
+    <script>
+        (function(i,n,v,o,c,a) { i.InvocaTagId = o; var s = n.createElement('script'); s.type = 'text/javascript';
+        s.async = true; s.src = ('https:' === n.location.protocol ? 'https://' : 'http://' ) + v;
+        var fs = n.getElementsByTagName('script')[0]; fs.parentNode.insertBefore(s, fs);
+        })(window, document, 'solutions.invocacdn.com/js/invoca-latest.min.js', '2967/1491503369');
+    </script>
 
-    </body>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('contact-form');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Prevent default form submission
+
+                    const formData = new FormData(form);
+                    const formValues = {};
+                    formData.forEach((value, key) => {
+                        formValues[key] = value;
+                    });
+
+                    if (window.Invoca && window.Invoca.PNAPI) {
+                        window.Invoca.PNAPI.setMarketingData(formValues);
+                        console.log('Form data sent to Invoca:', formValues);
+                    } else {
+                        console.error('Invoca PNAPI not found. Form data not sent.');
+                    }
+
+                    // For demonstration, you could show a success message or submit the form normally
+                    alert('Form submitted! Check the browser console for the Invoca marketing data payload.');
+                    // form.submit(); // To submit the form after sending data to Invoca
+                });
+            }
+        });
+    </script>
+</body>
 </html>
