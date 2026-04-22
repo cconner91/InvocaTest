@@ -1,5 +1,5 @@
 // Receives the form POST, logs it, then forwards to Invoca's form fill endpoint.
-// Set INVOCA_ENDPOINT in your Vercel project's Environment Variables.
+// Set INVOCA_ENDPOINT and INVOCA_API_TOKEN in your Vercel project's Environment Variables.
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -15,10 +15,15 @@ export default async function handler(req, res) {
 
   console.log("[proxy] received payload:", JSON.stringify(payload, null, 2));
 
+  const headers = { "Content-Type": "application/json" };
+  if (process.env.INVOCA_API_TOKEN) {
+    headers["Authorization"] = `Bearer ${process.env.INVOCA_API_TOKEN}`;
+  }
+
   try {
     const invocaRes = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(payload),
     });
 
