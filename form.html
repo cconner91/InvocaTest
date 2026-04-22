@@ -326,8 +326,8 @@
 
       <!-- Developer config note -->
       <div class="api-config">
-        <strong>Dev note:</strong> Update <code>API_ENDPOINT</code> in the script below to point to your endpoint.
-        On success the page redirects to <code>thank-you.html</code>.
+        <strong>Dev note:</strong> Form posts to <code>/api/proxy</code>, which forwards to Invoca.
+        Set <code>INVOCA_ENDPOINT</code> in your Vercel environment variables. On success redirects to <code>thank-you.html</code>.
       </div>
 
       <p class="form-notice">Internal test use only &mdash; not a real product form.</p>
@@ -340,7 +340,7 @@
 
   <script>
     // ── Config ───────────────────────────────────────────────────────────────
-    const API_ENDPOINT = "https://your-api-endpoint.example.com/leads"; // <-- update this
+    const API_ENDPOINT = "/api/proxy";
     const REDIRECT_ON_SUCCESS = "thank-you.html";
     // ─────────────────────────────────────────────────────────────────────────
 
