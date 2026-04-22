@@ -16,10 +16,14 @@ export default async function handler(req, res) {
   console.log("[proxy] received payload:", JSON.stringify(payload, null, 2));
 
   const invocaPayload = {
-    ...payload,
+    occurred_at: new Date().toISOString(),
     event_data: {
-      phone_number: `+${payload.phone.replace(/\D/g, "")}`,
-      sms_consent: String(payload.sms_consent),
+      first_name:             payload.first_name,
+      last_name:              payload.last_name,
+      email:                  payload.email,
+      phone_number:           `+${payload.phone.replace(/\D/g, "")}`,
+      sms_consent:            String(payload.sms_consent),
+      invoca_attribution_id:  payload.invoca_attribution_id,
     },
   };
 
