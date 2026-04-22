@@ -15,13 +15,15 @@ export default async function handler(req, res) {
 
   console.log("[proxy] received payload:", JSON.stringify(payload, null, 2));
 
+  const digits = payload.phone.replace(/\D/g, "");
+  const e164 = digits.length === 10 ? `+1${digits}` : `+${digits}`;
+
   const invocaPayload = {
     occurred_at: new Date().toISOString(),
     event_data: {
-      first_name:             payload.first_name,
-      last_name:              payload.last_name,
-      email:                  payload.email,
-      phone_number:           `+${payload.phone.replace(/\D/g, "")}`,
+      name:                   `${payload.first_name} ${payload.last_name}`.trim(),
+      email_address:          payload.email,
+      phone_number:           e164,
       sms_consent:            String(payload.sms_consent),
       invoca_attribution_id:  payload.invoca_attribution_id,
     },
