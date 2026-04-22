@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoca Test Site</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #ff5a00;
+      --orange-hover: #e04e00;
+      --navy: #0d1b3e;
+      --navy-light: #1a2f5e;
+      --gray-light: #f5f6f8;
+      --gray-mid: #e2e6ed;
+      --text: #1e2735;
+      --text-muted: #5a6478;
+      --white: #ffffff;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      background: var(--white);
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--navy);
+      color: var(--white);
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,.3);
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .logo span { color: var(--orange); }
+
+    nav { display: flex; align-items: center; gap: 32px; }
+
+    nav a {
+      color: rgba(255,255,255,.8);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 500;
+      transition: color .2s;
+    }
+
+    nav a:hover { color: var(--white); }
+
+    .header-phone {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--orange);
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      letter-spacing: .3px;
+    }
+
+    .header-phone svg { flex-shrink: 0; }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      color: var(--white);
+      padding: 80px 40px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      letter-spacing: -1px;
+    }
+
+    .hero h1 em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,.75);
+      max-width: 520px;
+      margin: 0 auto 36px;
+    }
+
+    .btn {
+      display: inline-block;
+      background: var(--orange);
+      color: var(--white);
+      padding: 14px 32px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background .2s, transform .15s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover { background: var(--orange-hover); transform: translateY(-1px); }
+
+    /* ── Cards section ── */
+    .section-label {
+      text-align: center;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 8px;
+      letter-spacing: -.5px;
+    }
+
+    .section-sub {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+      font-size: .95rem;
+    }
+
+    .cards-section {
+      background: var(--gray-light);
+      padding: 72px 40px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 36px 28px;
+      border: 1px solid var(--gray-mid);
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+      transition: box-shadow .2s, transform .2s;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.1); transform: translateY(-2px); }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255,90,0,.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-icon svg { color: var(--orange); }
+
+    .card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .card p {
+      font-size: .9rem;
+      color: var(--text-muted);
+      flex: 1;
+    }
+
+    .card-phone {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--orange);
+      font-weight: 700;
+      font-size: 1.05rem;
+      text-decoration: none;
+      margin-top: 4px;
+    }
+
+    .card-phone:hover { text-decoration: underline; }
+
+    /* ── CTA strip ── */
+    .cta-strip {
+      background: var(--navy);
+      color: var(--white);
+      text-align: center;
+      padding: 56px 40px;
+    }
+
+    .cta-strip h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .cta-strip p {
+      color: rgba(255,255,255,.7);
+      margin-bottom: 28px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: #080f1e;
+      color: rgba(255,255,255,.45);
+      text-align: center;
+      padding: 24px 40px;
+      font-size: .82rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header>
+    <a class="logo" href="index.html">In<span>voca</span> <span style="font-weight:300;font-size:.85em;opacity:.6">Test</span></a>
+
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="form.html">Contact</a>
+    </nav>
+
+    <!-- Phone #1 — header number -->
+    <a class="header-phone" href="tel:+18005550001">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.81a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.6 16.92z"/></svg>
+      (800) 555-0001
+    </a>
+  </header>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <h1>Invoca <em>Call Intelligence</em><br>Test Environment</h1>
+    <p>A clean sandbox for testing phone number swapping, tag behavior, and conversion tracking.</p>
+    <a class="btn" href="form.html">Submit a Test Lead &rarr;</a>
+  </section>
+
+  <!-- ── Cards ── -->
+  <section class="cards-section">
+    <p class="section-label">Test Numbers</p>
+    <h2 class="section-title">Three Trackable Lines</h2>
+    <p class="section-sub">Swap any of these with your Invoca tag to verify call attribution.</p>
+
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>Homepage / General</h3>
+        <p>Primary tracking line for organic and direct traffic landing on the home page.</p>
+        <!-- Phone #2 — card number -->
+        <a class="card-phone" href="tel:+18005550002">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.81a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.6 16.92z"/></svg>
+          (800) 555-0002
+        </a>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h3>Paid / Campaign</h3>
+        <p>Dedicated number for paid search and campaign traffic to isolate ad-driven calls.</p>
+        <!-- Phone #3 — card number -->
+        <a class="card-phone" href="tel:+18005550003">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.81a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.6 16.92z"/></svg>
+          (800) 555-0003
+        </a>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <h3>Form / Contact Page</h3>
+        <p>Tracks callers who reach out after viewing the contact or lead-capture form.</p>
+        <a class="card-phone" href="form.html" style="color:var(--orange);font-weight:700;text-decoration:none;font-size:.95rem;">
+          Go to form &rarr;
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── CTA strip ── -->
+  <section class="cta-strip">
+    <h2>Ready to test a conversion?</h2>
+    <p>Fill out the lead form and verify the API call fires correctly.</p>
+    <a class="btn" href="form.html">Open Lead Form</a>
+  </section>
+
+  <footer>
+    &copy; 2026 Invoca Test Site &mdash; Internal use only
+  </footer>
+
+</body>
+</html>
