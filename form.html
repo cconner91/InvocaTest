@@ -208,6 +208,28 @@
       margin-top: 16px;
     }
 
+    /* ── Checkbox ── */
+    .checkbox-field { margin-bottom: 20px; }
+
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+      font-size: .85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      min-width: 17px;
+      margin-top: 1px;
+      accent-color: var(--teal);
+      cursor: pointer;
+    }
+
     /* ── API config banner ── */
     .api-config {
       margin-top: 28px;
@@ -317,6 +339,13 @@
           <span class="field-error" id="err-email">A valid email address is required.</span>
         </div>
 
+        <div class="field checkbox-field">
+          <label class="checkbox-label">
+            <input type="checkbox" id="sms-consent" name="sms_consent" />
+            <span>I agree to receive SMS messages. Message and data rates may apply.</span>
+          </label>
+        </div>
+
         <button type="submit" class="submit-btn" id="submit-btn">
           <span class="btn-label">Submit</span>
           <span class="spinner"></span>
@@ -396,10 +425,11 @@
       if (!validate()) return;
 
       const payload = {
-        first_name: document.getElementById("first-name").value.trim(),
-        last_name:  document.getElementById("last-name").value.trim(),
-        phone:      document.getElementById("phone").value.trim(),
-        email:      document.getElementById("email").value.trim(),
+        first_name:   document.getElementById("first-name").value.trim(),
+        last_name:    document.getElementById("last-name").value.trim(),
+        phone:        document.getElementById("phone").value.trim(),
+        email:        document.getElementById("email").value.trim(),
+        sms_consent:  document.getElementById("sms-consent").checked,
       };
 
       setLoading(true);
