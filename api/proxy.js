@@ -15,6 +15,16 @@ export default async function handler(req, res) {
 
   console.log("[proxy] received payload:", JSON.stringify(payload, null, 2));
 
+  const invocaPayload = {
+    ...payload,
+    event_data: {
+      phone_number: `+${payload.phone.replace(/\D/g, "")}`,
+      sms_consent: String(payload.sms_consent),
+    },
+  };
+
+  console.log("[proxy] forwarding to Invoca:", JSON.stringify(invocaPayload, null, 2));
+
   const headers = { "Content-Type": "application/json" };
   if (process.env.INVOCA_API_TOKEN) {
     headers["Authorization"] = `Bearer ${process.env.INVOCA_API_TOKEN}`;
@@ -24,7 +34,7 @@ export default async function handler(req, res) {
     const invocaRes = await fetch(endpoint, {
       method: "POST",
       headers,
-      body: JSON.stringify(payload),
+      body: JSON.stringify(invocaPayload),
     });
 
     const responseBody = await invocaRes.text().catch(() => "");
