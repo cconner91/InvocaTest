@@ -8,10 +8,10 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --orange: #ff5a00;
-      --orange-hover: #e04e00;
-      --navy: #0d1b3e;
-      --navy-light: #1a2f5e;
+      --teal: #00c9bc;
+      --teal-hover: #00aea3;
+      --navy: #060d1f;
+      --navy-light: #0d1b3e;
       --gray-light: #f5f6f8;
       --gray-mid: #e2e6ed;
       --text: #1e2735;
@@ -50,7 +50,7 @@
       text-decoration: none;
     }
 
-    .logo span { color: var(--orange); }
+    .logo span { color: var(--teal); }
 
     nav { display: flex; align-items: center; gap: 32px; }
 
@@ -68,7 +68,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      color: var(--orange);
+      color: var(--teal);
       font-weight: 700;
       font-size: 1rem;
       text-decoration: none;
@@ -97,7 +97,7 @@
       font-weight: 700;
       letter-spacing: 2px;
       text-transform: uppercase;
-      color: var(--orange);
+      color: var(--teal);
       margin-bottom: 6px;
     }
 
@@ -148,8 +148,8 @@
     }
 
     input:focus {
-      border-color: var(--orange);
-      box-shadow: 0 0 0 3px rgba(255,90,0,.12);
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(0,201,188,.12);
     }
 
     input.invalid {
@@ -168,7 +168,7 @@
     .submit-btn {
       width: 100%;
       height: 48px;
-      background: var(--orange);
+      background: var(--teal);
       color: var(--white);
       border: none;
       border-radius: 7px;
@@ -183,7 +183,7 @@
       gap: 8px;
     }
 
-    .submit-btn:hover:not(:disabled) { background: var(--orange-hover); transform: translateY(-1px); }
+    .submit-btn:hover:not(:disabled) { background: var(--teal-hover); transform: translateY(-1px); }
     .submit-btn:disabled { opacity: .65; cursor: not-allowed; transform: none; }
 
     .spinner {
@@ -213,7 +213,7 @@
       margin-top: 28px;
       padding: 14px 16px;
       background: #fff8f5;
-      border: 1.5px dashed var(--orange);
+      border: 1.5px dashed var(--teal);
       border-radius: 8px;
       font-size: .8rem;
       color: var(--text-muted);
