@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       name:                   `${payload.first_name} ${payload.last_name}`.trim(),
       email_address:          payload.email,
       phone_number:           e164,
-      sms_consent:            String(payload.sms_consent),
+      sms_consent:            payload.sms_consent,
       invoca_attribution_id:  payload.invoca_attribution_id,
     },
   };
