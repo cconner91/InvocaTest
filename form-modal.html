@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contact Form | Invoca Test Site</title>
+  <title>Modal Form | Invoca Test Site</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -74,7 +74,7 @@
       text-decoration: none;
     }
 
-    /* ── Page body ── */
+    /* ── Main ── */
     main {
       flex: 1;
       display: flex;
@@ -83,16 +83,17 @@
       padding: 48px 24px;
     }
 
-    .form-card {
+    .page-card {
       background: var(--white);
       border-radius: 14px;
       box-shadow: 0 4px 24px rgba(0,0,0,.08);
-      padding: 48px 44px;
+      padding: 56px 44px;
       width: 100%;
-      max-width: 500px;
+      max-width: 480px;
+      text-align: center;
     }
 
-    .form-card .eyebrow {
+    .page-card .eyebrow {
       font-size: .72rem;
       font-weight: 700;
       letter-spacing: 2px;
@@ -101,18 +102,110 @@
       margin-bottom: 6px;
     }
 
-    .form-card h1 {
+    .page-card h1 {
       font-size: 1.65rem;
       font-weight: 800;
       color: var(--navy);
       letter-spacing: -.5px;
+      margin-bottom: 8px;
+    }
+
+    .page-card p {
+      font-size: .9rem;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .launch-btn {
+      display: inline-block;
+      background: var(--teal);
+      color: var(--white);
+      padding: 14px 32px;
+      border-radius: 7px;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+
+    .launch-btn:hover { background: var(--teal-hover); transform: translateY(-1px); }
+
+    /* ── Modal overlay ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 13, 31, .7);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--white);
+      border-radius: 14px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.2);
+      padding: 40px 44px;
+      width: 100%;
+      max-width: 500px;
+      position: relative;
+      transform: translateY(16px);
+      transition: transform .2s;
+    }
+
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background .15s, color .15s;
+    }
+
+    .modal-close:hover { background: var(--gray-light); color: var(--text); }
+
+    /* ── Form styles ── */
+    .eyebrow {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--teal);
       margin-bottom: 6px;
     }
 
-    .form-card .subtitle {
-      font-size: .88rem;
+    .modal h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -.5px;
+      margin-bottom: 4px;
+    }
+
+    .modal .subtitle {
+      font-size: .85rem;
       color: var(--text-muted);
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
     .field-row {
@@ -125,7 +218,7 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     label {
@@ -134,7 +227,9 @@
       color: var(--text);
     }
 
-    input {
+    input[type="text"],
+    input[type="tel"],
+    input[type="email"] {
       height: 44px;
       padding: 0 14px;
       border: 1.5px solid var(--gray-mid);
@@ -147,7 +242,9 @@
       width: 100%;
     }
 
-    input:focus {
+    input[type="text"]:focus,
+    input[type="tel"]:focus,
+    input[type="email"]:focus {
       border-color: var(--teal);
       box-shadow: 0 0 0 3px rgba(0,201,188,.12);
     }
@@ -165,6 +262,28 @@
 
     .field-error.visible { display: block; }
 
+    /* ── Checkbox ── */
+    .checkbox-field { margin-bottom: 16px; }
+
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+      font-size: .85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      min-width: 17px;
+      margin-top: 1px;
+      accent-color: var(--teal);
+      cursor: pointer;
+    }
+
     .submit-btn {
       width: 100%;
       height: 48px;
@@ -176,7 +295,6 @@
       font-weight: 700;
       cursor: pointer;
       transition: background .2s, transform .15s;
-      margin-top: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -201,72 +319,13 @@
     .submit-btn.loading .spinner { display: block; }
     .submit-btn.loading .btn-label { display: none; }
 
-    .form-notice {
-      font-size: .78rem;
-      color: var(--text-muted);
-      text-align: center;
-      margin-top: 16px;
-    }
-
-    /* ── Checkbox ── */
-    .checkbox-field { margin-bottom: 20px; }
-
-    .checkbox-label {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      cursor: pointer;
-      font-size: .85rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-
-    .checkbox-label input[type="checkbox"] {
-      width: 17px;
-      height: 17px;
-      min-width: 17px;
-      margin-top: 1px;
-      accent-color: var(--teal);
-      cursor: pointer;
-    }
-
-    /* ── API config banner ── */
-    .api-config {
-      margin-top: 28px;
-      padding: 14px 16px;
-      background: #fff8f5;
-      border: 1.5px dashed var(--teal);
-      border-radius: 8px;
-      font-size: .8rem;
-      color: var(--text-muted);
-    }
-
-    .api-config strong { color: var(--navy); }
-
-    .api-config code {
-      background: #f0f0f0;
-      padding: 1px 5px;
-      border-radius: 4px;
-      font-family: "SF Mono", Menlo, monospace;
-      font-size: .78rem;
-      color: var(--navy);
-    }
-
-    /* ── Status toast ── */
     #status-toast {
       display: none;
-      margin-top: 20px;
+      margin-top: 16px;
       padding: 12px 16px;
       border-radius: 7px;
       font-size: .88rem;
       font-weight: 500;
-    }
-
-    #status-toast.success {
-      background: #edf7ed;
-      color: var(--success);
-      border: 1px solid #b8dfb8;
-      display: block;
     }
 
     #status-toast.error {
@@ -310,17 +369,30 @@
     </a>
   </header>
 
-  <!-- ── Form ── -->
+  <!-- ── Page content ── -->
   <main>
-    <div class="form-card">
+    <div class="page-card">
+      <p class="eyebrow">Modal Form Test</p>
+      <h1>Launch the Form</h1>
+      <p>Click the button below to open the lead capture form in a modal. Tests whether InvocaJS correctly populates the hidden attribution ID field inside a modal.</p>
+      <button class="launch-btn" id="launch-btn">Click to Launch the Form</button>
+    </div>
+  </main>
+
+  <!-- ── Modal ── -->
+  <div class="modal-overlay" id="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+      <button class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+
       <p class="eyebrow">Test Lead Capture</p>
-      <h1>Contact Us</h1>
-      <p class="subtitle">Fill out the form below. On submit, a POST request fires to the configured API endpoint.</p>
+      <h2 id="modal-title">Contact Us</h2>
+      <p class="subtitle">Submit this form to test the modal attribution ID flow.</p>
 
       <form id="lead-form" novalidate>
 
         <input type="hidden" name="invoca_attribution_id" />
-        <input type="hidden" name="form_page" value="static" />
+        <input type="hidden" name="form_page" value="modal" />
 
         <div class="field-row">
           <div class="field">
@@ -362,34 +434,42 @@
         <div id="status-toast"></div>
 
       </form>
-
-      <!-- Developer config note -->
-      <div class="api-config">
-        <strong>Dev note:</strong> Form posts to <code>/api/proxy</code>, which forwards to Invoca.
-        Set <code>INVOCA_ENDPOINT</code> in your Vercel environment variables. On success redirects to <code>thank-you.html</code>.
-      </div>
-
-      <p class="form-notice">Internal test use only &mdash; not a real product form.</p>
     </div>
-  </main>
+  </div>
 
   <footer>
     &copy; 2026 Invoca Test Site &mdash; Internal use only
   </footer>
 
   <script>
-    // ── Config ───────────────────────────────────────────────────────────────
     const API_ENDPOINT = "/api/proxy";
     const REDIRECT_ON_SUCCESS = "thank-you.html";
-    // ─────────────────────────────────────────────────────────────────────────
 
-    const form = document.getElementById("lead-form");
+    const overlay   = document.getElementById("modal-overlay");
+    const launchBtn = document.getElementById("launch-btn");
+    const closeBtn  = document.getElementById("modal-close");
+    const form      = document.getElementById("lead-form");
     const submitBtn = document.getElementById("submit-btn");
     const statusToast = document.getElementById("status-toast");
 
+    function openModal() {
+      overlay.classList.add("open");
+      overlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal() {
+      overlay.classList.remove("open");
+      overlay.setAttribute("aria-hidden", "true");
+    }
+
+    launchBtn.addEventListener("click", openModal);
+    closeBtn.addEventListener("click", closeModal);
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+
     function setError(inputId, errId, condition) {
       const input = document.getElementById(inputId);
-      const err = document.getElementById(errId);
+      const err   = document.getElementById(errId);
       if (condition) {
         input.classList.add("invalid");
         err.classList.add("visible");
@@ -419,27 +499,21 @@
       submitBtn.classList.toggle("loading", on);
     }
 
-    function showToast(type, msg) {
-      statusToast.className = type;
-      statusToast.textContent = msg;
-    }
-
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
       statusToast.className = "";
       statusToast.textContent = "";
 
       if (!validate()) return;
 
       const payload = {
-        first_name:              document.getElementById("first-name").value.trim(),
-        last_name:               document.getElementById("last-name").value.trim(),
-        phone:                   document.getElementById("phone").value.trim(),
-        email:                   document.getElementById("email").value.trim(),
-        sms_consent:             document.getElementById("sms-consent").checked,
-        invoca_attribution_id:   document.querySelector("input[name='invoca_attribution_id']").value,
-        form_page:               document.querySelector("input[name='form_page']").value,
+        first_name:            document.getElementById("first-name").value.trim(),
+        last_name:             document.getElementById("last-name").value.trim(),
+        phone:                 document.getElementById("phone").value.trim(),
+        email:                 document.getElementById("email").value.trim(),
+        sms_consent:           document.getElementById("sms-consent").checked,
+        invoca_attribution_id: document.querySelector("input[name='invoca_attribution_id']").value,
+        form_page:             document.querySelector("input[name='form_page']").value,
       };
 
       setLoading(true);
@@ -460,17 +534,16 @@
 
       } catch (err) {
         setLoading(false);
-        showToast("error", `Submission failed: ${err.message}`);
+        statusToast.className = "error";
+        statusToast.textContent = `Submission failed: ${err.message}`;
         console.error("API error:", err);
       }
     });
 
-    // Clear invalid state on input
     form.querySelectorAll("input").forEach((input) => {
       input.addEventListener("input", () => {
         input.classList.remove("invalid");
-        const errId = "err-" + input.id;
-        const errEl = document.getElementById(errId);
+        const errEl = document.getElementById("err-" + input.id);
         if (errEl) errEl.classList.remove("visible");
         statusToast.className = "";
         statusToast.textContent = "";

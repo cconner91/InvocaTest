@@ -18,21 +18,20 @@ export default async function handler(req, res) {
   const digits = payload.phone.replace(/\D/g, "");
   const e164 = digits.length === 10 ? `+1${digits}` : `+${digits}`;
 
-const invocaPayload = {
-  occurred_at: new Date().toISOString(),
-
-  event_data: {
-    name: payload.name || `${payload.first_name} ${payload.last_name}`.trim(),
-    form_name: "lead inquiry - parts v1",
-    first_name: payload.first_name,
-    last_name: payload.last_name,
-
-    email_address: payload.email,
-    phone_number: e164,
-    sms_consent: payload.sms_consent,
-    invoca_attribution_id: payload.invoca_attribution_id,
-  },
-};
+  const invocaPayload = {
+    occurred_at: new Date().toISOString(),
+    event_data: {
+      name:                   `${payload.first_name} ${payload.last_name}`.trim(),
+      form_name:              "lead inquiry - parts v1",
+      first_name:             payload.first_name,
+      last_name:              payload.last_name,
+      email_address:          payload.email,
+      phone_number:           e164,
+      sms_consent:            payload.sms_consent,
+      invoca_attribution_id:  payload.invoca_attribution_id,
+      form_page:              payload.form_page,
+    },
+  };
 
   console.log("[proxy] forwarding to Invoca:", JSON.stringify(invocaPayload, null, 2));
 
