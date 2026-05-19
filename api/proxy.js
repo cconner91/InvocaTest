@@ -6,12 +6,18 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const endpoint = process.env.INVOCA_ENDPOINT;
-  if (!endpoint) {
-    return res.status(500).json({ error: "INVOCA_ENDPOINT env var not set" });
-  }
+const payload = req.body;
 
-  const payload = req.body;
+const endpoint =
+  payload.form_name === "modal"
+    ? process.env.Workato_Endpoint
+    : process.env.INVOCA_ENDPOINT;
+
+if (!endpoint) {
+  return res.status(500).json({
+    error: "Endpoint environment variable not set",
+  });
+}
 
   console.log("[proxy] received payload:", JSON.stringify(payload, null, 2));
 
@@ -29,7 +35,7 @@ export default async function handler(req, res) {
       phone_number:           e164,
       sms_consent:            payload.sms_consent,
       invoca_attribution_id:  payload.invoca_attribution_id,
-      form_page:              payload.form_page,
+      form_page:              payload.form_name === "modal" ? "modal-workato" : "static-invoca",
     },
   };
 
