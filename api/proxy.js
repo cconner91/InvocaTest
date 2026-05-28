@@ -26,9 +26,9 @@ if (!endpoint) {
 
   const invocaPayload = {
     occurred_at: new Date().toISOString(),
+    form_name:              "lead inquiry - parts v2",
     event_data: {
       name:                   `${payload.first_name} ${payload.last_name}`.trim(),
-      form_name:              "lead inquiry - parts v1",
       first_name:             payload.first_name,
       last_name:              payload.last_name,
       email_address:          payload.email,
