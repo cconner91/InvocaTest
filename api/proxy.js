@@ -36,6 +36,7 @@ if (!endpoint) {
       sms_consent:            payload.sms_consent,
       invoca_attribution_id:  payload.invoca_attribution_id,
       form_page:              payload.form_name === "modal" ? "modal-workato" : "static-invoca",
+      static_form_number:     "833-897-4216",
     },
   };
 
