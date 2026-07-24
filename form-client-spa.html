@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contact Form | Invoca Test Site</title>
+  <title>Client-Side Form (SPA-style) | Invoca Test Site</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -52,14 +52,15 @@
 
     .logo span { color: var(--teal); }
 
-    nav { display: flex; align-items: center; gap: 32px; }
+    nav { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
 
     nav a {
       color: rgba(255,255,255,.8);
       text-decoration: none;
-      font-size: .9rem;
+      font-size: .82rem;
       font-weight: 500;
       transition: color .2s;
+      white-space: nowrap;
     }
 
     nav a:hover { color: var(--white); }
@@ -315,14 +316,11 @@
   <!-- ── Form ── -->
   <main>
     <div class="form-card">
-      <p class="eyebrow">Test Lead Capture</p>
-      <h1>Contact Us</h1>
-      <p class="subtitle">Fill out the form below. On submit, a POST request fires to the configured API endpoint.</p>
+      <p class="eyebrow">Client-Side Lead Capture &mdash; SPA Simulation</p>
+      <h1>Client-Side Form (SPA-style)</h1>
+      <p class="subtitle">This page deliberately behaves like a React/SPA form: field values live in JS state, the submit button never fires a native <code>submit</code> event, and this page's own success path dispatches a custom <code>invocaLeadSubmit</code> event for InvocaJS to read.</p>
 
-      <form id="lead-form" novalidate>
-
-        <input type="hidden" name="invoca_attribution_id" />
-        <input type="hidden" name="form_page" value="static" />
+      <form id="sfLeadForm-spa" novalidate>
 
         <div class="field-row">
           <div class="field">
@@ -356,7 +354,9 @@
           </label>
         </div>
 
-        <button type="submit" class="submit-btn" id="submit-btn">
+        <!-- type="button", NOT "submit" — no native submit event ever fires here,
+             same as a real React/Vue handleSubmit that reads state and calls fetch(). -->
+        <button type="button" class="submit-btn" id="submit-btn">
           <span class="btn-label">Submit</span>
           <span class="spinner"></span>
         </button>
@@ -367,8 +367,7 @@
 
       <!-- Developer config note -->
       <div class="api-config">
-        <strong>Dev note:</strong> Form posts to <code>/api/proxy</code>, which forwards to Invoca.
-        <code>Invoca Lead Form Endpoint</code> is configured in Vercel (proxy) environment variables. On success redirects to <code>thank-you.html</code>.
+        <strong>Dev note:</strong> Unlike the other two client-side pages, this form's submit button is <code>type="button"</code> &mdash; there is no native <code>submit</code> event for InvocaJS's default listener to catch. Instead, after this page's own (simulated) submission succeeds, it dispatches <code>new CustomEvent("invocaLeadSubmit", &#123; detail: formData, bubbles: true &#125;)</code> on the <code>#sfLeadForm-spa</code> element. For InvocaJS to pick this up, the Invoca Tag's custom code block must set <code>leadFormSelector: "#sfLeadForm-spa"</code> <em>and</em> <code>leadFormSubmitEvent: "invocaLeadSubmit"</code> (plus a real <code>leadFormId</code> / <code>leadIngestionUrl</code>) &mdash; configured on the Invoca platform, not in this repo.
       </div>
 
       <p class="form-notice">Internal test use only &mdash; Invoca Demo Network: 2967</p>
@@ -380,12 +379,10 @@
   </footer>
 
   <script>
-    // ── Config ───────────────────────────────────────────────────────────────
-    const API_ENDPOINT = "/api/proxy";
-    const REDIRECT_ON_SUCCESS = "thank-you.html";
-    // ─────────────────────────────────────────────────────────────────────────
+    const REDIRECT_ON_SUCCESS = "thank-you.html?mode=client-spa";
+    const CUSTOM_SUBMIT_EVENT = "invocaLeadSubmit";
 
-    const form = document.getElementById("lead-form");
+    const form = document.getElementById("sfLeadForm-spa");
     const submitBtn = document.getElementById("submit-btn");
     const statusToast = document.getElementById("status-toast");
 
@@ -421,59 +418,58 @@
       submitBtn.classList.toggle("loading", on);
     }
 
-    function showToast(type, msg) {
-      statusToast.className = type;
-      statusToast.textContent = msg;
+    // Simulates the SPA's own app-level submission (e.g. a fetch() to its
+    // own API). This is a fake local delay, not a real network call — this
+    // sandbox has no backend of its own to submit to here.
+    function simulateAppSubmit(values) {
+      return new Promise((resolve) => window.setTimeout(() => resolve(values), 400));
     }
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
+    submitBtn.addEventListener("click", async () => {
       statusToast.className = "";
       statusToast.textContent = "";
 
       if (!validate()) return;
 
-      const payload = {
-        first_name:              document.getElementById("first-name").value.trim(),
-        last_name:               document.getElementById("last-name").value.trim(),
-        phone:                   document.getElementById("phone").value.trim(),
-        email:                   document.getElementById("email").value.trim(),
-        sms_consent:             document.getElementById("sms-consent").checked,
-        invoca_attribution_id:   document.querySelector("input[name='invoca_attribution_id']").value,
-        form_page:               document.querySelector("input[name='form_page']").value,
-        form_name:               "main",
+      const values = {
+        first_name:  document.getElementById("first-name").value.trim(),
+        last_name:   document.getElementById("last-name").value.trim(),
+        phone:       document.getElementById("phone").value.trim(),
+        email:       document.getElementById("email").value.trim(),
+        sms_consent: document.getElementById("sms-consent").checked,
       };
 
       setLoading(true);
 
       try {
-        const res = await fetch(API_ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+        // 1. The app's own submission path (state → its own API). Nothing to
+        //    do with Invoca — this is what a real client's SPA already does.
+        await simulateAppSubmit(values);
 
-        if (!res.ok) {
-          const text = await res.text().catch(() => "");
-          throw new Error(`Server returned ${res.status}${text ? ": " + text : ""}`);
-        }
+        // 2. Only after that succeeds, fire the custom event InvocaJS is
+        //    configured to listen for, on the exact element leadFormSelector
+        //    points at. detail must be FormData, not a plain object.
+        const leadData = new FormData();
+        Object.entries(values).forEach(([key, val]) => leadData.append(key, val));
+
+        form.dispatchEvent(
+          new CustomEvent(CUSTOM_SUBMIT_EVENT, { detail: leadData, bubbles: true })
+        );
 
         window.location.href = REDIRECT_ON_SUCCESS;
 
       } catch (err) {
         setLoading(false);
-        showToast("error", `Submission failed: ${err.message}`);
-        console.error("API error:", err);
+        statusToast.className = "error";
+        statusToast.textContent = `Submission failed: ${err.message}`;
+        console.error("App submit error:", err);
       }
     });
 
-    // Clear invalid state on input
     form.querySelectorAll("input").forEach((input) => {
       input.addEventListener("input", () => {
         input.classList.remove("invalid");
-        const errId = "err-" + input.id;
-        const errEl = document.getElementById(errId);
+        const errEl = document.getElementById("err-" + input.id);
         if (errEl) errEl.classList.remove("visible");
         statusToast.className = "";
         statusToast.textContent = "";

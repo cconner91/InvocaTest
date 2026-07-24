@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contact Form | Invoca Test Site</title>
+  <title>Client-Side Form (Multi-step) | Invoca Test Site</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -52,14 +52,15 @@
 
     .logo span { color: var(--teal); }
 
-    nav { display: flex; align-items: center; gap: 32px; }
+    nav { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
 
     nav a {
       color: rgba(255,255,255,.8);
       text-decoration: none;
-      font-size: .9rem;
+      font-size: .85rem;
       font-weight: 500;
       transition: color .2s;
+      white-space: nowrap;
     }
 
     nav a:hover { color: var(--white); }
@@ -112,8 +113,39 @@
     .form-card .subtitle {
       font-size: .88rem;
       color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* ── Step progress ── */
+    .step-progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       margin-bottom: 32px;
     }
+
+    .step-dot {
+      flex: 1;
+      height: 5px;
+      border-radius: 3px;
+      background: var(--gray-mid);
+      transition: background .25s;
+    }
+
+    .step-dot.active,
+    .step-dot.done { background: var(--teal); }
+
+    .step-label {
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .step-label strong { color: var(--navy); }
+
+    .form-step { display: none; }
+    .form-step.active { display: block; }
 
     .field-row {
       display: grid;
@@ -165,7 +197,30 @@
 
     .field-error.visible { display: block; }
 
-    .submit-btn {
+    .step-nav {
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .btn-back {
+      flex: 0 0 auto;
+      height: 48px;
+      padding: 0 20px;
+      background: var(--white);
+      color: var(--text);
+      border: 1.5px solid var(--gray-mid);
+      border-radius: 7px;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .btn-back:hover { background: var(--gray-light); }
+
+    .submit-btn, .btn-next {
+      flex: 1;
       width: 100%;
       height: 48px;
       background: var(--teal);
@@ -176,14 +231,13 @@
       font-weight: 700;
       cursor: pointer;
       transition: background .2s, transform .15s;
-      margin-top: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
     }
 
-    .submit-btn:hover:not(:disabled) { background: var(--teal-hover); transform: translateY(-1px); }
+    .submit-btn:hover:not(:disabled), .btn-next:hover { background: var(--teal-hover); transform: translateY(-1px); }
     .submit-btn:disabled { opacity: .65; cursor: not-allowed; transform: none; }
 
     .spinner {
@@ -315,51 +369,69 @@
   <!-- ── Form ── -->
   <main>
     <div class="form-card">
-      <p class="eyebrow">Test Lead Capture</p>
-      <h1>Contact Us</h1>
-      <p class="subtitle">Fill out the form below. On submit, a POST request fires to the configured API endpoint.</p>
+      <p class="eyebrow">Client-Side Lead Capture</p>
+      <h1>Client-Side Form (Multi-step)</h1>
+      <p class="subtitle">One native <code>&lt;form&gt;</code> rendered across two visual steps. Only the final step fires a real <code>submit</code> event, which InvocaJS captures &mdash; no JS fetch call is made from this page.</p>
 
-      <form id="lead-form" novalidate>
+      <div class="step-progress">
+        <div class="step-dot active" id="dot-1"></div>
+        <div class="step-dot" id="dot-2"></div>
+      </div>
+      <p class="step-label" id="step-label">Step <strong>1</strong> of 2 &mdash; Contact Info</p>
 
-        <input type="hidden" name="invoca_attribution_id" />
-        <input type="hidden" name="form_page" value="static" />
+      <form id="sfLeadForm-multistep" novalidate>
 
-        <div class="field-row">
-          <div class="field">
-            <label for="first-name">First Name</label>
-            <input type="text" id="first-name" name="first_name" placeholder="Jane" autocomplete="given-name" />
-            <span class="field-error" id="err-first-name">First name is required.</span>
+        <!-- ── Step 1: Name + Phone ── -->
+        <div class="form-step active" id="step-1">
+
+          <div class="field-row">
+            <div class="field">
+              <label for="first-name">First Name</label>
+              <input type="text" id="first-name" name="first_name" placeholder="Jane" autocomplete="given-name" />
+              <span class="field-error" id="err-first-name">First name is required.</span>
+            </div>
+            <div class="field">
+              <label for="last-name">Last Name</label>
+              <input type="text" id="last-name" name="last_name" placeholder="Smith" autocomplete="family-name" />
+              <span class="field-error" id="err-last-name">Last name is required.</span>
+            </div>
           </div>
+
           <div class="field">
-            <label for="last-name">Last Name</label>
-            <input type="text" id="last-name" name="last_name" placeholder="Smith" autocomplete="family-name" />
-            <span class="field-error" id="err-last-name">Last name is required.</span>
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" placeholder="(800) 555-0123" autocomplete="tel" />
+            <span class="field-error" id="err-phone">A valid phone number is required.</span>
+          </div>
+
+          <div class="step-nav">
+            <button type="button" class="btn-next" id="next-btn">Continue</button>
           </div>
         </div>
 
-        <div class="field">
-          <label for="phone">Phone Number</label>
-          <input type="tel" id="phone" name="phone" placeholder="(800) 555-0123" autocomplete="tel" />
-          <span class="field-error" id="err-phone">A valid phone number is required.</span>
-        </div>
+        <!-- ── Step 2: Email + Consent ── -->
+        <div class="form-step" id="step-2">
 
-        <div class="field">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" placeholder="jane@example.com" autocomplete="email" />
-          <span class="field-error" id="err-email">A valid email address is required.</span>
-        </div>
+          <div class="field">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="jane@example.com" autocomplete="email" />
+            <span class="field-error" id="err-email">A valid email address is required.</span>
+          </div>
 
-        <div class="field checkbox-field">
-          <label class="checkbox-label">
-            <input type="checkbox" id="sms-consent" name="sms_consent" />
-            <span>I agree to receive SMS messages. Message and data rates may apply.</span>
-          </label>
-        </div>
+          <div class="field checkbox-field">
+            <label class="checkbox-label">
+              <input type="checkbox" id="sms-consent" name="sms_consent" />
+              <span>I agree to receive SMS messages. Message and data rates may apply.</span>
+            </label>
+          </div>
 
-        <button type="submit" class="submit-btn" id="submit-btn">
-          <span class="btn-label">Submit</span>
-          <span class="spinner"></span>
-        </button>
+          <div class="step-nav">
+            <button type="button" class="btn-back" id="back-btn">Back</button>
+            <button type="submit" class="submit-btn" id="submit-btn">
+              <span class="btn-label">Submit</span>
+              <span class="spinner"></span>
+            </button>
+          </div>
+        </div>
 
         <div id="status-toast"></div>
 
@@ -367,8 +439,7 @@
 
       <!-- Developer config note -->
       <div class="api-config">
-        <strong>Dev note:</strong> Form posts to <code>/api/proxy</code>, which forwards to Invoca.
-        <code>Invoca Lead Form Endpoint</code> is configured in Vercel (proxy) environment variables. On success redirects to <code>thank-you.html</code>.
+        <strong>Dev note:</strong> This page makes <em>no</em> fetch call to <code>/api/proxy</code>. It's a single native form split across two visual steps &mdash; only the final "Submit" button is <code>type="submit"</code>, so InvocaJS's native <code>submit</code> listener (<code>leadFormSelector: "#sfLeadForm-multistep"</code>) fires exactly once, with both steps' fields already present in the form's data. The matching <code>options.leadIngestionConfig</code> (with a real <code>leadFormId</code> / <code>leadIngestionUrl</code>) must be set in the Invoca Tag's custom code block for Tag <code>2967/1491503369</code>.
       </div>
 
       <p class="form-notice">Internal test use only &mdash; Invoca Demo Network: 2967</p>
@@ -380,14 +451,19 @@
   </footer>
 
   <script>
-    // ── Config ───────────────────────────────────────────────────────────────
-    const API_ENDPOINT = "/api/proxy";
-    const REDIRECT_ON_SUCCESS = "thank-you.html";
-    // ─────────────────────────────────────────────────────────────────────────
+    const REDIRECT_ON_SUCCESS = "thank-you.html?mode=client-multistep";
 
-    const form = document.getElementById("lead-form");
+    const form = document.getElementById("sfLeadForm-multistep");
     const submitBtn = document.getElementById("submit-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const backBtn = document.getElementById("back-btn");
     const statusToast = document.getElementById("status-toast");
+
+    const step1 = document.getElementById("step-1");
+    const step2 = document.getElementById("step-2");
+    const dot1 = document.getElementById("dot-1");
+    const dot2 = document.getElementById("dot-2");
+    const stepLabel = document.getElementById("step-label");
 
     function setError(inputId, errId, condition) {
       const input = document.getElementById(inputId);
@@ -402,78 +478,73 @@
       return false;
     }
 
-    function validate() {
+    function validateStep1() {
       const first = document.getElementById("first-name").value.trim();
       const last  = document.getElementById("last-name").value.trim();
       const phone = document.getElementById("phone").value.trim();
-      const email = document.getElementById("email").value.trim();
 
       const e1 = setError("first-name", "err-first-name", !first);
       const e2 = setError("last-name",  "err-last-name",  !last);
       const e3 = setError("phone",      "err-phone",      !/^[\d\s\-().+]{7,}$/.test(phone));
-      const e4 = setError("email",      "err-email",      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
 
-      return !(e1 || e2 || e3 || e4);
+      return !(e1 || e2 || e3);
     }
+
+    function validateStep2() {
+      const email = document.getElementById("email").value.trim();
+      const e1 = setError("email", "err-email", !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+      return !e1;
+    }
+
+    function goToStep2() {
+      if (!validateStep1()) return;
+      step1.classList.remove("active");
+      step2.classList.add("active");
+      dot1.classList.add("done");
+      dot2.classList.add("active");
+      stepLabel.innerHTML = 'Step <strong>2</strong> of 2 &mdash; Email &amp; Consent';
+    }
+
+    function goToStep1() {
+      step2.classList.remove("active");
+      step1.classList.add("active");
+      dot1.classList.remove("done");
+      dot2.classList.remove("active");
+      stepLabel.innerHTML = 'Step <strong>1</strong> of 2 &mdash; Contact Info';
+    }
+
+    nextBtn.addEventListener("click", goToStep2);
+    backBtn.addEventListener("click", goToStep1);
 
     function setLoading(on) {
       submitBtn.disabled = on;
       submitBtn.classList.toggle("loading", on);
     }
 
-    function showToast(type, msg) {
-      statusToast.className = type;
-      statusToast.textContent = msg;
-    }
-
-    form.addEventListener("submit", async (e) => {
+    // NOTE: preventDefault() only blocks the browser's default navigation.
+    // It does not stop InvocaJS's own "submit" listener from seeing this
+    // event and reading the form's full field data (both steps) first.
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
 
       statusToast.className = "";
       statusToast.textContent = "";
 
-      if (!validate()) return;
-
-      const payload = {
-        first_name:              document.getElementById("first-name").value.trim(),
-        last_name:               document.getElementById("last-name").value.trim(),
-        phone:                   document.getElementById("phone").value.trim(),
-        email:                   document.getElementById("email").value.trim(),
-        sms_consent:             document.getElementById("sms-consent").checked,
-        invoca_attribution_id:   document.querySelector("input[name='invoca_attribution_id']").value,
-        form_page:               document.querySelector("input[name='form_page']").value,
-        form_name:               "main",
-      };
+      if (!validateStep2()) return;
 
       setLoading(true);
 
-      try {
-        const res = await fetch(API_ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        if (!res.ok) {
-          const text = await res.text().catch(() => "");
-          throw new Error(`Server returned ${res.status}${text ? ": " + text : ""}`);
-        }
-
+      // No fetch here — this page hands off entirely to InvocaJS's client-side
+      // lead capture. We just simulate a brief submit delay for UX, then move on.
+      window.setTimeout(() => {
         window.location.href = REDIRECT_ON_SUCCESS;
-
-      } catch (err) {
-        setLoading(false);
-        showToast("error", `Submission failed: ${err.message}`);
-        console.error("API error:", err);
-      }
+      }, 400);
     });
 
-    // Clear invalid state on input
     form.querySelectorAll("input").forEach((input) => {
       input.addEventListener("input", () => {
         input.classList.remove("invalid");
-        const errId = "err-" + input.id;
-        const errEl = document.getElementById(errId);
+        const errEl = document.getElementById("err-" + input.id);
         if (errEl) errEl.classList.remove("visible");
         statusToast.className = "";
         statusToast.textContent = "";
