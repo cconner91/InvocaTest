@@ -322,6 +322,8 @@
 
       <form id="sfLeadForm-spa" novalidate>
 
+        <input type="hidden" name="invoca_attribution_id" />
+
         <div class="field-row">
           <div class="field">
             <label for="first-name">First Name</label>
@@ -432,11 +434,12 @@
       if (!validate()) return;
 
       const values = {
-        first_name:  document.getElementById("first-name").value.trim(),
-        last_name:   document.getElementById("last-name").value.trim(),
-        phone:       document.getElementById("phone").value.trim(),
-        email:       document.getElementById("email").value.trim(),
-        sms_consent: document.getElementById("sms-consent").checked,
+        first_name:            document.getElementById("first-name").value.trim(),
+        last_name:             document.getElementById("last-name").value.trim(),
+        phone:                 document.getElementById("phone").value.trim(),
+        email:                 document.getElementById("email").value.trim(),
+        sms_consent:           document.getElementById("sms-consent").checked,
+        invoca_attribution_id: document.querySelector("input[name='invoca_attribution_id']").value,
       };
 
       setLoading(true);
