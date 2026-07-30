@@ -320,9 +320,10 @@
       <h1>Client-Side Form (SPA-style)</h1>
       <p class="subtitle">This page deliberately behaves like a React/SPA form: field values live in JS state, the submit button never fires a native <code>submit</code> event, and this page's own success path dispatches a custom <code>invocaLeadSubmit</code> event for InvocaJS to read.</p>
 
-      <form id="sfLeadForm-spa" novalidate>
+      <form id="sfLeadForm" novalidate>
 
         <input type="hidden" name="invoca_attribution_id" />
+        <input type="hidden" name="form_name" value="client-spa" />
 
         <div class="field-row">
           <div class="field">
@@ -369,7 +370,7 @@
 
       <!-- Developer config note -->
       <div class="api-config">
-        <strong>Dev note:</strong> Unlike the other two client-side pages, this form's submit button is <code>type="button"</code> &mdash; there is no native <code>submit</code> event for InvocaJS's default listener to catch. Instead, after this page's own (simulated) submission succeeds, it dispatches <code>new CustomEvent("invocaLeadSubmit", &#123; detail: formData, bubbles: true &#125;)</code> on the <code>#sfLeadForm-spa</code> element. For InvocaJS to pick this up, the Invoca Tag's custom code block must set <code>leadFormSelector: "#sfLeadForm-spa"</code> <em>and</em> <code>leadFormSubmitEvent: "invocaLeadSubmit"</code> (plus a real <code>leadFormId</code> / <code>leadIngestionUrl</code>) &mdash; configured on the Invoca platform, not in this repo.
+        <strong>Dev note:</strong> Unlike the other two client-side pages, this form's submit button is <code>type="button"</code> &mdash; there is no native <code>submit</code> event for InvocaJS's default listener to catch. Instead, after this page's own (simulated) submission succeeds, it dispatches <code>new CustomEvent("invocaLeadSubmit", &#123; detail: formData, bubbles: true &#125;)</code> on the <code>#sfLeadForm</code> element. This page shares the same <code>leadFormId</code> / <code>leadFormSelector</code> as the other two &mdash; the <code>form_name</code> field ("client-spa") is what distinguishes its submissions in Invoca. For InvocaJS to pick this up, the Invoca Tag's custom code block must set <code>leadFormSelector: "#sfLeadForm"</code> <em>and</em> <code>leadFormSubmitEvent: "invocaLeadSubmit"</code> &mdash; configured on the Invoca platform, not in this repo.
       </div>
 
       <p class="form-notice">Internal test use only &mdash; Invoca Demo Network: 2967</p>
@@ -384,7 +385,7 @@
     const REDIRECT_ON_SUCCESS = "thank-you.html?mode=client-spa";
     const CUSTOM_SUBMIT_EVENT = "invocaLeadSubmit";
 
-    const form = document.getElementById("sfLeadForm-spa");
+    const form = document.getElementById("sfLeadForm");
     const submitBtn = document.getElementById("submit-btn");
     const statusToast = document.getElementById("status-toast");
 
@@ -440,6 +441,7 @@
         email:                 document.getElementById("email").value.trim(),
         sms_consent:           document.getElementById("sms-consent").checked,
         invoca_attribution_id: document.querySelector("input[name='invoca_attribution_id']").value,
+        form_name:             document.querySelector("input[name='form_name']").value,
       };
 
       setLoading(true);

@@ -379,9 +379,10 @@
       </div>
       <p class="step-label" id="step-label">Step <strong>1</strong> of 2 &mdash; Contact Info</p>
 
-      <form id="sfLeadForm-multistep" novalidate>
+      <form id="sfLeadForm" novalidate>
 
         <input type="hidden" name="invoca_attribution_id" />
+        <input type="hidden" name="form_name" value="client-multi-step" />
 
         <!-- ── Step 1: Name + Phone ── -->
         <div class="form-step active" id="step-1">
@@ -441,7 +442,7 @@
 
       <!-- Developer config note -->
       <div class="api-config">
-        <strong>Dev note:</strong> This page makes <em>no</em> fetch call to <code>/api/proxy</code>. It's a single native form split across two visual steps &mdash; only the final "Submit" button is <code>type="submit"</code>, so InvocaJS's native <code>submit</code> listener (<code>leadFormSelector: "#sfLeadForm-multistep"</code>) fires exactly once, with both steps' fields already present in the form's data. The matching <code>options.leadIngestionConfig</code> (with a real <code>leadFormId</code> / <code>leadIngestionUrl</code>) must be set in the Invoca Tag's custom code block for Tag <code>2967/1491503369</code>.
+        <strong>Dev note:</strong> This page makes <em>no</em> fetch call to <code>/api/proxy</code>. It's a single native form split across two visual steps &mdash; only the final "Submit" button is <code>type="submit"</code>, so InvocaJS's native <code>submit</code> listener (<code>leadFormSelector: "#sfLeadForm"</code>) fires exactly once, with both steps' fields already present in the form's data. This page shares the same <code>leadFormId</code> / <code>leadFormSelector</code> as the single-step form &mdash; the hidden <code>form_name</code> field ("client-multi-step") is what distinguishes its submissions in Invoca. The matching <code>options.leadIngestionConfig</code> must be set in the Invoca Tag's custom code block for Tag <code>2967/1491503369</code>.
       </div>
 
       <p class="form-notice">Internal test use only &mdash; Invoca Demo Network: 2967</p>
@@ -455,7 +456,7 @@
   <script>
     const REDIRECT_ON_SUCCESS = "thank-you.html?mode=client-multistep";
 
-    const form = document.getElementById("sfLeadForm-multistep");
+    const form = document.getElementById("sfLeadForm");
     const submitBtn = document.getElementById("submit-btn");
     const nextBtn = document.getElementById("next-btn");
     const backBtn = document.getElementById("back-btn");
