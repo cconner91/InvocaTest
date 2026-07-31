@@ -381,9 +381,9 @@
 
       <!-- Developer config note -->
       <div class="api-config">
-        <strong>Dev note:</strong> This page tests something the other two client-side pages can't. It rebuilds the form on every step transition via <code>innerHTML</code> replacement, so the final step's <code>#sfLeadForm-spa</code> element is a <em>different DOM node</em> than the one present on step 1 &mdash; deliberately mimicking a real SPA route change (e.g. this account's actual multi-step flow, which uses a Next.js catch-all route per step). The custom <code>invocaLeadSubmit</code> event is dispatched on that freshly-mounted final node, which tests whether InvocaJS's listener survives DOM churn or is bound to a now-detached element.
+        <strong>Dev note:</strong> This page tests something the other two client-side pages can't. It rebuilds the form on every step transition via <code>innerHTML</code> replacement, so the final step's <code>#sfLeadForm</code> element is a <em>different DOM node</em> than the one present on step 1 &mdash; deliberately mimicking a real SPA route change (e.g. this account's actual multi-step flow, which uses a Next.js catch-all route per step). The custom <code>invocaLeadSubmit</code> event is dispatched on that freshly-mounted final node, which tests whether InvocaJS's listener survives DOM churn or is bound to a now-detached element.
         <ul>
-          <li>This form uses its own selector, <code>leadFormSelector: "#sfLeadForm-spa"</code> &mdash; separate from the native forms' shared <code>#sfLeadForm</code> &mdash; because it needs <code>leadFormSubmitEvent: "invocaLeadSubmit"</code> instead of the default <code>submit</code>. Whether one Tag's custom code can hold both configs at once is still an open question.</li>
+          <li>This form shares the same <code>#sfLeadForm</code> selector as the other two client-side pages &mdash; only <code>leadFormSubmitEvent</code> needs to change (to <code>"invocaLeadSubmit"</code>) when swapping the Tag's custom code to test this page instead of the native forms.</li>
           <li>The hidden <code>invoca_attribution_id</code> field is re-rendered fresh on every step. Worth watching whether it's populated at the moment of final submit, or whether InvocaJS only ever populated the step-1 instance that no longer exists by then.</li>
         </ul>
       </div>
@@ -407,20 +407,20 @@
     // ─────────────────────────────────────────────────────────────────────
 
     const REDIRECT_ON_SUCCESS = "thank-you.html?mode=client-spa-multistep";
-    const FORM_SELECTOR = "#sfLeadForm-spa";
+    const FORM_SELECTOR = "#sfLeadForm";
     const CUSTOM_SUBMIT_EVENT = "invocaLeadSubmit";
 
     // Field values from earlier steps have to live somewhere once their DOM
     // is destroyed. In a real SPA this would be React state / context /
-    // router state; here it's just a plain object.
-    const wizardState = {
+    // router state — same role as "values" in the docs' example, named
+    // "values" here too since it's read the same way when building leadData.
+    const values = {
       first_name: "",
       last_name: "",
       phone: "",
       email: "",
       company: "",
       formMessage: "",
-      sms_consent: false,
     };
 
     const STEPS = [
@@ -444,7 +444,6 @@
         final: true,
         fields: [
           { name: "formMessage", label: "Message", type: "textarea", required: false },
-          { name: "sms_consent", label: "I agree to receive SMS messages. Message and data rates may apply.", type: "checkbox", required: false },
         ],
       },
     ];
@@ -469,7 +468,7 @@
     }
 
     function fieldMarkup(field) {
-      const value = wizardState[field.name];
+      const value = values[field.name];
       const id = `field-${field.name}`;
 
       if (field.type === "textarea") {
@@ -508,7 +507,7 @@
       // the previous <form> node and creates a brand new one, the same way
       // a real SPA route change unmounts and remounts a page's DOM.
       root.innerHTML = `
-        <form id="sfLeadForm-spa" novalidate>
+        <form id="sfLeadForm" novalidate>
           <input type="hidden" name="invoca_attribution_id" />
           <input type="hidden" name="form_name" value="client-spa-multistep" />
           ${step.fields.map(fieldMarkup).join("")}
@@ -545,7 +544,7 @@
     function captureStepValues(step) {
       step.fields.forEach((field) => {
         const el = document.getElementById(`field-${field.name}`);
-        wizardState[field.name] = field.type === "checkbox" ? el.checked : el.value.trim();
+        values[field.name] = field.type === "checkbox" ? el.checked : el.value.trim();
       });
     }
 
@@ -600,15 +599,16 @@
         await simulateAppSubmit();
 
         // ── Key-mapping table: the one part of this pattern that's specific
-        //    to this Invoca account's configured schema. ──
+        //    to this Invoca account's configured schema. Note formMessage
+        //    (this page's own field name) maps to form_message (Invoca's
+        //    actual MDF key) — same kind of remap as email → email_address. ──
         const leadData = new FormData();
-        leadData.append("first_name",   wizardState.first_name);
-        leadData.append("last_name",    wizardState.last_name);
-        leadData.append("phone_number", wizardState.phone);
-        leadData.append("email_address",wizardState.email);
-        leadData.append("company",      wizardState.company);
-        leadData.append("formMessage",  wizardState.formMessage);
-        leadData.append("sms_consent",  wizardState.sms_consent);
+        leadData.append("first_name",   values.first_name);
+        leadData.append("last_name",    values.last_name);
+        leadData.append("phone_number", values.phone);
+        leadData.append("email_address",values.email);
+        leadData.append("company",      values.company);
+        leadData.append("form_message", values.formMessage);
         leadData.append("form_name",    "client-spa-multistep");
         leadData.append("invoca_attribution_id", form.querySelector("input[name='invoca_attribution_id']").value);
 
