@@ -384,7 +384,7 @@
         <strong>Dev note:</strong> This page tests something the other two client-side pages can't. It rebuilds the form on every step transition via <code>innerHTML</code> replacement, so the final step's <code>#sfLeadForm</code> element is a <em>different DOM node</em> than the one present on step 1 &mdash; deliberately mimicking a real SPA route change (e.g. this account's actual multi-step flow, which uses a Next.js catch-all route per step). The custom <code>invocaLeadSubmit</code> event is dispatched on that freshly-mounted final node, which tests whether InvocaJS's listener survives DOM churn or is bound to a now-detached element.
         <ul>
           <li>This form shares the same <code>#sfLeadForm</code> selector as the other two client-side pages &mdash; only <code>leadFormSubmitEvent</code> needs to change (to <code>"invocaLeadSubmit"</code>) when swapping the Tag's custom code to test this page instead of the native forms.</li>
-          <li>The hidden <code>invoca_attribution_id</code> field is re-rendered fresh on every step. Worth watching whether it's populated at the moment of final submit, or whether InvocaJS only ever populated the step-1 instance that no longer exists by then.</li>
+          <li>The hidden <code>invoca_attribution_id</code> field only renders on step 3 &mdash; it never existed on steps 1 or 2 at all. This tests whether InvocaJS populates a matching field the first time it sees one, whenever that happens, rather than only during some early one-time pass.</li>
         </ul>
       </div>
 
@@ -508,7 +508,7 @@
       // a real SPA route change unmounts and remounts a page's DOM.
       root.innerHTML = `
         <form id="sfLeadForm" novalidate>
-          <input type="hidden" name="invoca_attribution_id" />
+          ${isLast ? '<input type="hidden" name="invoca_attribution_id" />' : ""}
           <input type="hidden" name="form_name" value="client-spa-multistep" />
           ${step.fields.map(fieldMarkup).join("")}
           <div class="step-nav">
