@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Client-Side Form (SPA-style) | Invoca Test Site</title>
+  <title>Client-Side Form (SPA Multi-Step) | Invoca Test Site</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -90,7 +90,7 @@
       box-shadow: 0 4px 24px rgba(0,0,0,.08);
       padding: 48px 44px;
       width: 100%;
-      max-width: 500px;
+      max-width: 520px;
     }
 
     .form-card .eyebrow {
@@ -113,8 +113,36 @@
     .form-card .subtitle {
       font-size: .88rem;
       color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* ── Step progress ── */
+    .step-progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       margin-bottom: 32px;
     }
+
+    .step-dot {
+      flex: 1;
+      height: 5px;
+      border-radius: 3px;
+      background: var(--gray-mid);
+      transition: background .25s;
+    }
+
+    .step-dot.active,
+    .step-dot.done { background: var(--teal); }
+
+    .step-label {
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .step-label strong { color: var(--navy); }
 
     .field-row {
       display: grid;
@@ -135,12 +163,12 @@
       color: var(--text);
     }
 
-    input {
-      height: 44px;
+    input, textarea {
       padding: 0 14px;
       border: 1.5px solid var(--gray-mid);
       border-radius: 7px;
       font-size: .95rem;
+      font-family: inherit;
       color: var(--text);
       background: var(--white);
       transition: border-color .2s, box-shadow .2s;
@@ -148,12 +176,20 @@
       width: 100%;
     }
 
-    input:focus {
+    input { height: 44px; }
+
+    textarea {
+      padding: 12px 14px;
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    input:focus, textarea:focus {
       border-color: var(--teal);
       box-shadow: 0 0 0 3px rgba(0,201,188,.12);
     }
 
-    input.invalid {
+    input.invalid, textarea.invalid {
       border-color: var(--error);
       box-shadow: 0 0 0 3px rgba(217,54,62,.1);
     }
@@ -166,7 +202,30 @@
 
     .field-error.visible { display: block; }
 
-    .submit-btn {
+    .step-nav {
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .btn-back {
+      flex: 0 0 auto;
+      height: 48px;
+      padding: 0 20px;
+      background: var(--white);
+      color: var(--text);
+      border: 1.5px solid var(--gray-mid);
+      border-radius: 7px;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .btn-back:hover { background: var(--gray-light); }
+
+    .submit-btn, .btn-next {
+      flex: 1;
       width: 100%;
       height: 48px;
       background: var(--teal);
@@ -177,14 +236,13 @@
       font-weight: 700;
       cursor: pointer;
       transition: background .2s, transform .15s;
-      margin-top: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
     }
 
-    .submit-btn:hover:not(:disabled) { background: var(--teal-hover); transform: translateY(-1px); }
+    .submit-btn:hover:not(:disabled), .btn-next:hover { background: var(--teal-hover); transform: translateY(-1px); }
     .submit-btn:disabled { opacity: .65; cursor: not-allowed; transform: none; }
 
     .spinner {
@@ -253,6 +311,9 @@
       color: var(--navy);
     }
 
+    .api-config ul { margin: 8px 0 0 18px; }
+    .api-config li { margin-bottom: 6px; }
+
     /* ── Status toast ── */
     #status-toast {
       display: none;
@@ -261,13 +322,6 @@
       border-radius: 7px;
       font-size: .88rem;
       font-weight: 500;
-    }
-
-    #status-toast.success {
-      background: #edf7ed;
-      color: var(--success);
-      border: 1px solid #b8dfb8;
-      display: block;
     }
 
     #status-toast.error {
@@ -317,60 +371,21 @@
   <main>
     <div class="form-card">
       <p class="eyebrow">Client-Side Lead Capture &mdash; SPA Simulation</p>
-      <h1>Client-Side Form (SPA-style)</h1>
-      <p class="subtitle">This page deliberately behaves like a React/SPA form: field values live in JS state, the submit button never fires a native <code>submit</code> event, and this page's own success path dispatches a custom <code>invocaLeadSubmit</code> event for InvocaJS to read.</p>
+      <h1>Client-Side Form (SPA Multi-Step)</h1>
+      <p class="subtitle">Each step below fully destroys and rebuilds its own DOM &mdash; including the <code>&lt;form&gt;</code> element itself &mdash; the same way a Next.js route change unmounts and remounts a page's component tree. Field values are held in JS state between steps, not in a persistent form.</p>
 
-      <form id="sfLeadForm" novalidate>
+      <div class="step-progress" id="step-progress"></div>
+      <p class="step-label" id="step-label"></p>
 
-        <input type="hidden" name="invoca_attribution_id" />
-        <input type="hidden" name="form_name" value="client-spa" />
-
-        <div class="field-row">
-          <div class="field">
-            <label for="first-name">First Name</label>
-            <input type="text" id="first-name" name="first_name" placeholder="Jane" autocomplete="given-name" />
-            <span class="field-error" id="err-first-name">First name is required.</span>
-          </div>
-          <div class="field">
-            <label for="last-name">Last Name</label>
-            <input type="text" id="last-name" name="last_name" placeholder="Smith" autocomplete="family-name" />
-            <span class="field-error" id="err-last-name">Last name is required.</span>
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="phone">Phone Number</label>
-          <input type="tel" id="phone" name="phone" placeholder="(800) 555-0123" autocomplete="tel" />
-          <span class="field-error" id="err-phone">A valid phone number is required.</span>
-        </div>
-
-        <div class="field">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" placeholder="jane@example.com" autocomplete="email" />
-          <span class="field-error" id="err-email">A valid email address is required.</span>
-        </div>
-
-        <div class="field checkbox-field">
-          <label class="checkbox-label">
-            <input type="checkbox" id="sms-consent" name="sms_consent" />
-            <span>I agree to receive SMS messages. Message and data rates may apply.</span>
-          </label>
-        </div>
-
-        <!-- type="button", NOT "submit" — no native submit event ever fires here,
-             same as a real React/Vue handleSubmit that reads state and calls fetch(). -->
-        <button type="button" class="submit-btn" id="submit-btn">
-          <span class="btn-label">Submit</span>
-          <span class="spinner"></span>
-        </button>
-
-        <div id="status-toast"></div>
-
-      </form>
+      <div id="step-root"></div>
 
       <!-- Developer config note -->
       <div class="api-config">
-        <strong>Dev note:</strong> Unlike the other two client-side pages, this form's submit button is <code>type="button"</code> &mdash; there is no native <code>submit</code> event for InvocaJS's default listener to catch. Instead, after this page's own (simulated) submission succeeds, it dispatches <code>new CustomEvent("invocaLeadSubmit", &#123; detail: formData, bubbles: true &#125;)</code> on the <code>#sfLeadForm</code> element. This page shares the same <code>leadFormId</code> / <code>leadFormSelector</code> as the other two &mdash; the <code>form_name</code> field ("client-spa") is what distinguishes its submissions in Invoca. For InvocaJS to pick this up, the Invoca Tag's custom code block must set <code>leadFormSelector: "#sfLeadForm"</code> <em>and</em> <code>leadFormSubmitEvent: "invocaLeadSubmit"</code> &mdash; configured on the Invoca platform, not in this repo.
+        <strong>Dev note:</strong> This page tests something the other two client-side pages can't. It rebuilds the form on every step transition via <code>innerHTML</code> replacement, so the final step's <code>#sfLeadForm-spa</code> element is a <em>different DOM node</em> than the one present on step 1 &mdash; deliberately mimicking a real SPA route change (e.g. this account's actual multi-step flow, which uses a Next.js catch-all route per step). The custom <code>invocaLeadSubmit</code> event is dispatched on that freshly-mounted final node, which tests whether InvocaJS's listener survives DOM churn or is bound to a now-detached element.
+        <ul>
+          <li>This form uses its own selector, <code>leadFormSelector: "#sfLeadForm-spa"</code> &mdash; separate from the native forms' shared <code>#sfLeadForm</code> &mdash; because it needs <code>leadFormSubmitEvent: "invocaLeadSubmit"</code> instead of the default <code>submit</code>. Whether one Tag's custom code can hold both configs at once is still an open question.</li>
+          <li>The hidden <code>invoca_attribution_id</code> field is re-rendered fresh on every step. Worth watching whether it's populated at the moment of final submit, or whether InvocaJS only ever populated the step-1 instance that no longer exists by then.</li>
+        </ul>
       </div>
 
       <p class="form-notice">Internal test use only &mdash; Invoca Demo Network: 2967</p>
@@ -382,80 +397,220 @@
   </footer>
 
   <script>
-    const REDIRECT_ON_SUCCESS = "thank-you.html?mode=client-spa";
+    // ─────────────────────────────────────────────────────────────────────
+    // Generic SPA multi-step lead-form pattern
+    //
+    // Everything below the STEPS array is intentionally generic — it doesn't
+    // know or care what fields exist. To reuse this pattern for a different
+    // SPA-style customer form, change STEPS and the key-mapping table inside
+    // handleFinalSubmit(); nothing else needs to change.
+    // ─────────────────────────────────────────────────────────────────────
+
+    const REDIRECT_ON_SUCCESS = "thank-you.html?mode=client-spa-multistep";
+    const FORM_SELECTOR = "#sfLeadForm-spa";
     const CUSTOM_SUBMIT_EVENT = "invocaLeadSubmit";
 
-    const form = document.getElementById("sfLeadForm");
-    const submitBtn = document.getElementById("submit-btn");
-    const statusToast = document.getElementById("status-toast");
+    // Field values from earlier steps have to live somewhere once their DOM
+    // is destroyed. In a real SPA this would be React state / context /
+    // router state; here it's just a plain object.
+    const wizardState = {
+      first_name: "",
+      last_name: "",
+      phone: "",
+      email: "",
+      company: "",
+      formMessage: "",
+      sms_consent: false,
+    };
 
-    function setError(inputId, errId, condition) {
-      const input = document.getElementById(inputId);
-      const err = document.getElementById(errId);
-      if (condition) {
-        input.classList.add("invalid");
-        err.classList.add("visible");
-        return true;
+    const STEPS = [
+      {
+        title: "Contact Info",
+        fields: [
+          { name: "first_name", label: "First Name", type: "text", autocomplete: "given-name", required: true },
+          { name: "last_name",  label: "Last Name",  type: "text", autocomplete: "family-name", required: true },
+          { name: "phone",      label: "Phone Number", type: "tel", autocomplete: "tel", required: true, pattern: /^[\d\s\-().+]{7,}$/, error: "A valid phone number is required." },
+        ],
+      },
+      {
+        title: "Your Organization",
+        fields: [
+          { name: "company", label: "Company", type: "text", autocomplete: "organization", required: false },
+          { name: "email",   label: "Email Address", type: "email", autocomplete: "email", required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, error: "A valid email address is required." },
+        ],
+      },
+      {
+        title: "Your Message",
+        final: true,
+        fields: [
+          { name: "formMessage", label: "Message", type: "textarea", required: false },
+          { name: "sms_consent", label: "I agree to receive SMS messages. Message and data rates may apply.", type: "checkbox", required: false },
+        ],
+      },
+    ];
+
+    let currentStep = 0;
+    const root = document.getElementById("step-root");
+    const progressRoot = document.getElementById("step-progress");
+    const stepLabel = document.getElementById("step-label");
+
+    progressRoot.innerHTML = STEPS.map((_, i) => `<div class="step-dot" id="dot-${i}"></div>`).join("");
+
+    function updateProgressDots() {
+      STEPS.forEach((_, i) => {
+        const dot = document.getElementById(`dot-${i}`);
+        dot.classList.toggle("done", i < currentStep);
+        dot.classList.toggle("active", i === currentStep);
+      });
+    }
+
+    function escapeAttr(val) {
+      return String(val ?? "").replace(/"/g, "&quot;");
+    }
+
+    function fieldMarkup(field) {
+      const value = wizardState[field.name];
+      const id = `field-${field.name}`;
+
+      if (field.type === "textarea") {
+        return `
+          <div class="field">
+            <label for="${id}">${field.label}</label>
+            <textarea id="${id}" name="${field.name}" rows="4" placeholder="Tell us a bit about what you're looking for...">${escapeAttr(value)}</textarea>
+          </div>`;
       }
-      input.classList.remove("invalid");
-      err.classList.remove("visible");
-      return false;
+
+      if (field.type === "checkbox") {
+        return `
+          <div class="field checkbox-field">
+            <label class="checkbox-label">
+              <input type="checkbox" id="${id}" name="${field.name}" ${value ? "checked" : ""} />
+              <span>${field.label}</span>
+            </label>
+          </div>`;
+      }
+
+      return `
+        <div class="field">
+          <label for="${id}">${field.label}</label>
+          <input type="${field.type}" id="${id}" name="${field.name}" autocomplete="${field.autocomplete || "off"}" value="${escapeAttr(value)}" />
+          <span class="field-error" id="err-${field.name}">${field.error || "This field is required."}</span>
+        </div>`;
     }
 
-    function validate() {
-      const first = document.getElementById("first-name").value.trim();
-      const last  = document.getElementById("last-name").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const email = document.getElementById("email").value.trim();
+    function renderStep(index) {
+      currentStep = index;
+      const step = STEPS[index];
+      const isFirst = index === 0;
+      const isLast = !!step.final;
 
-      const e1 = setError("first-name", "err-first-name", !first);
-      const e2 = setError("last-name",  "err-last-name",  !last);
-      const e3 = setError("phone",      "err-phone",      !/^[\d\s\-().+]{7,}$/.test(phone));
-      const e4 = setError("email",      "err-email",      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+      // The entire form is rebuilt from a string every time — this destroys
+      // the previous <form> node and creates a brand new one, the same way
+      // a real SPA route change unmounts and remounts a page's DOM.
+      root.innerHTML = `
+        <form id="sfLeadForm-spa" novalidate>
+          <input type="hidden" name="invoca_attribution_id" />
+          <input type="hidden" name="form_name" value="client-spa-multistep" />
+          ${step.fields.map(fieldMarkup).join("")}
+          <div class="step-nav">
+            ${!isFirst ? `<button type="button" class="btn-back" id="back-btn">Back</button>` : ""}
+            <button type="button" class="${isLast ? "submit-btn" : "btn-next"}" id="${isLast ? "submit-btn" : "next-btn"}">
+              <span class="btn-label">${isLast ? "Submit" : "Continue"}</span>
+              ${isLast ? '<span class="spinner"></span>' : ""}
+            </button>
+          </div>
+          <div id="status-toast"></div>
+        </form>`;
 
-      return !(e1 || e2 || e3 || e4);
+      stepLabel.innerHTML = `Step <strong>${index + 1}</strong> of ${STEPS.length} &mdash; ${step.title}`;
+      updateProgressDots();
+      wireStepEvents(step, isLast);
     }
 
-    function setLoading(on) {
-      submitBtn.disabled = on;
-      submitBtn.classList.toggle("loading", on);
+    function validateStep(step) {
+      let valid = true;
+      step.fields.forEach((field) => {
+        if (field.type === "checkbox") return;
+        const el = document.getElementById(`field-${field.name}`);
+        const err = document.getElementById(`err-${field.name}`);
+        const val = el.value.trim();
+        const bad = (field.required && !val) || (field.pattern && val && !field.pattern.test(val));
+        el.classList.toggle("invalid", !!bad);
+        if (err) err.classList.toggle("visible", !!bad);
+        if (bad) valid = false;
+      });
+      return valid;
     }
 
-    // Simulates the SPA's own app-level submission (e.g. a fetch() to its
-    // own API). This is a fake local delay, not a real network call — this
-    // sandbox has no backend of its own to submit to here.
-    function simulateAppSubmit(values) {
-      return new Promise((resolve) => window.setTimeout(() => resolve(values), 400));
+    function captureStepValues(step) {
+      step.fields.forEach((field) => {
+        const el = document.getElementById(`field-${field.name}`);
+        wizardState[field.name] = field.type === "checkbox" ? el.checked : el.value.trim();
+      });
     }
 
-    submitBtn.addEventListener("click", async () => {
-      statusToast.className = "";
-      statusToast.textContent = "";
+    function wireStepEvents(step, isLast) {
+      const backBtn = document.getElementById("back-btn");
+      if (backBtn) {
+        backBtn.addEventListener("click", () => {
+          captureStepValues(step);
+          renderStep(currentStep - 1);
+        });
+      }
 
-      if (!validate()) return;
+      if (isLast) {
+        document.getElementById("submit-btn").addEventListener("click", () => handleFinalSubmit(step));
+      } else {
+        document.getElementById("next-btn").addEventListener("click", () => {
+          if (!validateStep(step)) return;
+          captureStepValues(step);
+          renderStep(currentStep + 1);
+        });
+      }
 
-      const values = {
-        first_name:            document.getElementById("first-name").value.trim(),
-        last_name:             document.getElementById("last-name").value.trim(),
-        phone:                 document.getElementById("phone").value.trim(),
-        email:                 document.getElementById("email").value.trim(),
-        sms_consent:           document.getElementById("sms-consent").checked,
-        invoca_attribution_id: document.querySelector("input[name='invoca_attribution_id']").value,
-        form_name:             document.querySelector("input[name='form_name']").value,
-      };
+      root.querySelectorAll("input, textarea").forEach((el) => {
+        el.addEventListener("input", () => {
+          el.classList.remove("invalid");
+          const err = document.getElementById(`err-${el.name}`);
+          if (err) err.classList.remove("visible");
+        });
+      });
+    }
 
-      setLoading(true);
+    // Simulates the SPA's own app-level submission (its own API call).
+    // This is a fake local delay, not a real network call — this sandbox
+    // has no backend of its own to submit the wizard to.
+    function simulateAppSubmit() {
+      return new Promise((resolve) => window.setTimeout(resolve, 400));
+    }
+
+    async function handleFinalSubmit(step) {
+      if (!validateStep(step)) return;
+      captureStepValues(step);
+
+      const submitBtn = document.getElementById("submit-btn");
+      submitBtn.disabled = true;
+      submitBtn.classList.add("loading");
+
+      // The form matching FORM_SELECTOR *right now* — the final, freshly
+      // mounted node. Not the same DOM element step 1 rendered.
+      const form = document.querySelector(FORM_SELECTOR);
 
       try {
-        // 1. The app's own submission path (state → its own API). Nothing to
-        //    do with Invoca — this is what a real client's SPA already does.
-        await simulateAppSubmit(values);
+        await simulateAppSubmit();
 
-        // 2. Only after that succeeds, fire the custom event InvocaJS is
-        //    configured to listen for, on the exact element leadFormSelector
-        //    points at. detail must be FormData, not a plain object.
+        // ── Key-mapping table: the one part of this pattern that's specific
+        //    to this Invoca account's configured schema. ──
         const leadData = new FormData();
-        Object.entries(values).forEach(([key, val]) => leadData.append(key, val));
+        leadData.append("first_name",   wizardState.first_name);
+        leadData.append("last_name",    wizardState.last_name);
+        leadData.append("phone_number", wizardState.phone);
+        leadData.append("email_address",wizardState.email);
+        leadData.append("company",      wizardState.company);
+        leadData.append("formMessage",  wizardState.formMessage);
+        leadData.append("sms_consent",  wizardState.sms_consent);
+        leadData.append("form_name",    "client-spa-multistep");
+        leadData.append("invoca_attribution_id", form.querySelector("input[name='invoca_attribution_id']").value);
 
         form.dispatchEvent(
           new CustomEvent(CUSTOM_SUBMIT_EVENT, { detail: leadData, bubbles: true })
@@ -464,22 +619,16 @@
         window.location.href = REDIRECT_ON_SUCCESS;
 
       } catch (err) {
-        setLoading(false);
-        statusToast.className = "error";
-        statusToast.textContent = `Submission failed: ${err.message}`;
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("loading");
+        const toast = document.getElementById("status-toast");
+        toast.className = "error";
+        toast.textContent = `Submission failed: ${err.message}`;
         console.error("App submit error:", err);
       }
-    });
+    }
 
-    form.querySelectorAll("input").forEach((input) => {
-      input.addEventListener("input", () => {
-        input.classList.remove("invalid");
-        const errEl = document.getElementById("err-" + input.id);
-        if (errEl) errEl.classList.remove("visible");
-        statusToast.className = "";
-        statusToast.textContent = "";
-      });
-    });
+    renderStep(0);
   </script>
 
 </body>
