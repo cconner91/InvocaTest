@@ -384,7 +384,7 @@
         <strong>Dev note:</strong> This page tests something the other two client-side pages can't. It rebuilds the form on every step transition via <code>innerHTML</code> replacement, so the final step's <code>#sfLeadForm</code> element is a <em>different DOM node</em> than the one present on step 1 &mdash; deliberately mimicking a real SPA route change (e.g. this account's actual multi-step flow, which uses a Next.js catch-all route per step). The custom <code>invocaLeadSubmit</code> event is dispatched on that freshly-mounted final node, which tests whether InvocaJS's listener survives DOM churn or is bound to a now-detached element.
         <ul>
           <li>This form shares the same <code>#sfLeadForm</code> selector as the other two client-side pages &mdash; only <code>leadFormSubmitEvent</code> needs to change (to <code>"invocaLeadSubmit"</code>) when swapping the Tag's custom code to test this page instead of the native forms.</li>
-          <li>Confirmed by testing: InvocaJS populates the hidden <code>invoca_attribution_id</code> field once, early — only if it already exists at that point. A field that first appears later (e.g. only on step 3) never gets populated at all. So this page captures the value into memory (<code>captureAttributionId()</code>) the moment it's set on step 1, and reuses that captured value at final submit instead of reading a fresh, never-populated DOM node.</li>
+          <li>Attribution is read via <code>Invoca.PNAPI.getAttributionId()</code> at submit time, not from a hidden DOM field. That value lives in InvocaJS's own session state, not tied to any page element — so unlike a hidden field (which this SPA page would otherwise destroy and recreate every step), it's unaffected by the DOM getting rebuilt between steps.</li>
         </ul>
       </div>
 
@@ -421,7 +421,6 @@
       email: "",
       company: "",
       formMessage: "",
-      invoca_attribution_id: "",
     };
 
     const STEPS = [
@@ -509,7 +508,6 @@
       // a real SPA route change unmounts and remounts a page's DOM.
       root.innerHTML = `
         <form id="sfLeadForm" novalidate>
-          <input type="hidden" name="invoca_attribution_id" />
           <input type="hidden" name="form_name" value="client-spa-multistep" />
           ${step.fields.map(fieldMarkup).join("")}
           <div class="step-nav">
@@ -617,10 +615,10 @@
         leadData.append("company",      values.company);
         leadData.append("form_message", values.formMessage);
         leadData.append("form_name",    "client-spa-multistep");
-        // Deliberately NOT reading this from the current DOM field — by
-        // step 3 that field is a fresh node InvocaJS never populated. Use
-        // the value captured on step 1 instead (see captureAttributionId).
-        leadData.append("invoca_attribution_id", values.invoca_attribution_id);
+        // Read directly from InvocaJS's own session state, not a DOM
+        // field — unaffected by this page destroying/rebuilding its form
+        // on every step transition.
+        leadData.append("invoca_attribution_id", Invoca.PNAPI.getAttributionId());
 
         form.dispatchEvent(
           new CustomEvent(CUSTOM_SUBMIT_EVENT, { detail: leadData, bubbles: true })
@@ -638,28 +636,7 @@
       }
     }
 
-    // InvocaJS reliably populates the hidden invoca_attribution_id field
-    // when it exists from step 1 (confirmed by testing) — but only once,
-    // early. It doesn't repopulate later, remounted instances of the same
-    // field. So capture the value into memory as soon as it appears, the
-    // same way every other field gets carried across step transitions,
-    // instead of trying to re-read a fresh DOM node at final submit.
-    function captureAttributionId(attemptsLeft) {
-      if (attemptsLeft === undefined) attemptsLeft = 25; // ~5s at 200ms
-      const field = document.querySelector("input[name='invoca_attribution_id']");
-      const value = field ? field.value : "";
-
-      if (value) {
-        values.invoca_attribution_id = value;
-        return;
-      }
-      if (attemptsLeft > 0) {
-        window.setTimeout(() => captureAttributionId(attemptsLeft - 1), 200);
-      }
-    }
-
     renderStep(0);
-    captureAttributionId();
   </script>
 
 </body>
