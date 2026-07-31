@@ -601,11 +601,17 @@
         // ── Key-mapping table: the one part of this pattern that's specific
         //    to this Invoca account's configured schema. Note formMessage
         //    (this page's own field name) maps to form_message (Invoca's
-        //    actual MDF key) — same kind of remap as email → email_address. ──
+        //    actual MDF key) — same kind of remap as email → email_address.
+        //    Phone is sent as "phone" (not "phone_number") to match
+        //    leadFormPhoneField: "phone" in the Tag config — the SPA doc's
+        //    own example used "phone_number", but that's inconsistent with
+        //    the general-setup snippet's leadFormPhoneField value, and
+        //    testing points at leadFormPhoneField being the one that
+        //    actually governs what key InvocaJS looks for. ──
         const leadData = new FormData();
         leadData.append("first_name",   values.first_name);
         leadData.append("last_name",    values.last_name);
-        leadData.append("phone_number", values.phone);
+        leadData.append("phone",        values.phone);
         leadData.append("email_address",values.email);
         leadData.append("company",      values.company);
         leadData.append("form_message", values.formMessage);
