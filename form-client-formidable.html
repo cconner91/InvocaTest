@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Client-Side Form (Single Step) | Invoca Test Site</title>
+  <title>Client-Side Form (Bracket Fields) | Invoca Test Site</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -90,7 +90,7 @@
       box-shadow: 0 4px 24px rgba(0,0,0,.08);
       padding: 48px 44px;
       width: 100%;
-      max-width: 500px;
+      max-width: 560px;
     }
 
     .form-card .eyebrow {
@@ -135,7 +135,14 @@
       color: var(--text);
     }
 
-    input {
+    label .field-name {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: .72rem;
+    }
+
+    input, textarea {
       height: 44px;
       padding: 0 14px;
       border: 1.5px solid var(--gray-mid);
@@ -146,24 +153,19 @@
       transition: border-color .2s, box-shadow .2s;
       outline: none;
       width: 100%;
+      font-family: inherit;
     }
 
-    input:focus {
+    textarea { height: auto; padding: 10px 14px; resize: vertical; }
+
+    input:focus, textarea:focus {
       border-color: var(--teal);
       box-shadow: 0 0 0 3px rgba(0,201,188,.12);
     }
 
-    input.invalid {
-      border-color: var(--error);
-      box-shadow: 0 0 0 3px rgba(217,54,62,.1);
-    }
+    input.invalid { border-color: var(--error); box-shadow: 0 0 0 3px rgba(217,54,62,.1); }
 
-    .field-error {
-      font-size: .78rem;
-      color: var(--error);
-      display: none;
-    }
-
+    .field-error { font-size: .78rem; color: var(--error); display: none; }
     .field-error.visible { display: block; }
 
     .submit-btn {
@@ -202,34 +204,7 @@
     .submit-btn.loading .spinner { display: block; }
     .submit-btn.loading .btn-label { display: none; }
 
-    .form-notice {
-      font-size: .78rem;
-      color: var(--text-muted);
-      text-align: center;
-      margin-top: 16px;
-    }
-
-    /* ── Checkbox ── */
-    .checkbox-field { margin-bottom: 20px; }
-
-    .checkbox-label {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      cursor: pointer;
-      font-size: .85rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-
-    .checkbox-label input[type="checkbox"] {
-      width: 17px;
-      height: 17px;
-      min-width: 17px;
-      margin-top: 1px;
-      accent-color: var(--teal);
-      cursor: pointer;
-    }
+    .form-notice { font-size: .78rem; color: var(--text-muted); text-align: center; margin-top: 16px; }
 
     /* ── API config banner ── */
     .api-config {
@@ -253,6 +228,42 @@
       color: var(--navy);
     }
 
+    /* ── Debug panel ── */
+    .debug-panel {
+      margin-top: 16px;
+      padding: 14px 16px;
+      background: var(--navy);
+      border-radius: 8px;
+      font-size: .78rem;
+      display: none;
+    }
+
+    .debug-panel.visible { display: block; }
+
+    .debug-panel .debug-title {
+      color: var(--teal);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: .68rem;
+      margin-bottom: 8px;
+    }
+
+    .debug-panel table { width: 100%; border-collapse: collapse; }
+
+    .debug-panel td {
+      padding: 3px 0;
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: .76rem;
+      vertical-align: top;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .debug-panel td.k { color: rgba(255,255,255,.55); padding-right: 12px; white-space: nowrap; }
+    .debug-panel td.v { color: #b6f5ef; word-break: break-all; }
+    .debug-panel td.v.removed { color: #ff8a80; text-decoration: line-through; }
+    .debug-panel td.v.added { color: #8ef0c8; }
+
     /* ── Status toast ── */
     #status-toast {
       display: none;
@@ -263,19 +274,8 @@
       font-weight: 500;
     }
 
-    #status-toast.success {
-      background: #edf7ed;
-      color: var(--success);
-      border: 1px solid #b8dfb8;
-      display: block;
-    }
-
-    #status-toast.error {
-      background: #fdf0f0;
-      color: var(--error);
-      border: 1px solid #f0b8b8;
-      display: block;
-    }
+    #status-toast.success { background: #edf7ed; color: var(--success); border: 1px solid #b8dfb8; display: block; }
+    #status-toast.error { background: #fdf0f0; color: var(--error); border: 1px solid #f0b8b8; display: block; }
 
     /* ── Footer ── */
     footer {
@@ -317,45 +317,54 @@
   <!-- ── Form ── -->
   <main>
     <div class="form-card">
-      <p class="eyebrow">Client-Side Lead Capture</p>
-      <h1>Client-Side Form (Single Step)</h1>
-      <p class="subtitle">This form is captured entirely by InvocaJS's native <code>leadIngestionConfig</code> listener. No JavaScript fetch call is made from this page &mdash; middleware is bypassed completely.</p>
+      <p class="eyebrow">Client-Side Lead Capture &mdash; Formidable-style</p>
+      <h1>Client-Side Form (Bracket Fields)</h1>
+      <p class="subtitle">Replicates a Formidable Forms (WordPress) field-naming pattern &mdash; <code>item_meta[N]</code> keys instead of readable names, and no hidden <code>invoca_attribution_id</code> input on the page. Both are handled by the remap script below, standing in for the Invoca Tag's custom code block.</p>
 
-      <form id="sfLeadForm" novalidate>
+      <form id="form_hm15a2333422" novalidate>
 
-        <input type="hidden" name="invoca_attribution_id" />
-        <input type="hidden" name="form_name" value="client-single-step" />
+        <!-- No hidden invoca_attribution_id field on purpose — it's appended
+             by the formdata listener below, same as the real client site. -->
+
+        <!-- A couple of unmapped hidden fields, to prove the remap script
+             leaves fields it doesn't know about alone. -->
+        <input type="hidden" name="item_meta[1053]" value="Home Page Test" />
+        <input type="hidden" name="item_meta[1057]" value="Web Form" />
 
         <div class="field-row">
           <div class="field">
-            <label for="first-name">First Name</label>
-            <input type="text" id="first-name" name="first_name" placeholder="Jane" autocomplete="given-name" />
+            <label for="first-name">First Name <span class="field-name">item_meta[1042]</span></label>
+            <input type="text" id="first-name" name="item_meta[1042]" placeholder="Jane" autocomplete="given-name" />
             <span class="field-error" id="err-first-name">First name is required.</span>
           </div>
           <div class="field">
-            <label for="last-name">Last Name</label>
-            <input type="text" id="last-name" name="last_name" placeholder="Smith" autocomplete="family-name" />
+            <label for="last-name">Last Name <span class="field-name">item_meta[1043]</span></label>
+            <input type="text" id="last-name" name="item_meta[1043]" placeholder="Smith" autocomplete="family-name" />
             <span class="field-error" id="err-last-name">Last name is required.</span>
           </div>
         </div>
 
         <div class="field">
-          <label for="phone">Phone Number</label>
-          <input type="tel" id="phone" name="phone" placeholder="(800) 555-0123" autocomplete="tel" />
+          <label for="email">Email Address <span class="field-name">item_meta[1044]</span></label>
+          <input type="email" id="email" name="item_meta[1044]" placeholder="jane@example.com" autocomplete="email" />
+          <span class="field-error" id="err-email">A valid email address is required.</span>
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone Number <span class="field-name">item_meta[1045]</span></label>
+          <input type="text" id="phone" name="item_meta[1045]" placeholder="020 7946 0958" autocomplete="tel" />
           <span class="field-error" id="err-phone">A valid phone number is required.</span>
         </div>
 
         <div class="field">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" placeholder="jane@example.com" autocomplete="email" />
-          <span class="field-error" id="err-email">A valid email address is required.</span>
+          <label for="postal-code">Postal Code <span class="field-name">item_meta[1046]</span></label>
+          <input type="text" id="postal-code" name="item_meta[1046]" placeholder="SW1A 1AA" autocomplete="postal-code" />
+          <span class="field-error" id="err-postal-code">A postal code is required.</span>
         </div>
 
-        <div class="field checkbox-field">
-          <label class="checkbox-label">
-            <input type="checkbox" id="sms-consent" name="sms_consent" />
-            <span>I agree to receive SMS messages. Message and data rates may apply.</span>
-          </label>
+        <div class="field">
+          <label for="message">Message <span class="field-name">item_meta[1050]</span></label>
+          <textarea id="message" name="item_meta[1050]" rows="4" placeholder="How can we help?"></textarea>
         </div>
 
         <button type="submit" class="submit-btn" id="submit-btn">
@@ -365,11 +374,16 @@
 
         <div id="status-toast"></div>
 
+        <div class="debug-panel" id="debug-panel">
+          <div class="debug-title">formdata event &mdash; remap result</div>
+          <table id="debug-table"></table>
+        </div>
+
       </form>
 
       <!-- Developer config note -->
       <div class="api-config">
-        <strong>Dev note:</strong> This page makes <em>no</em> fetch call to <code>/api/proxy</code>. InvocaJS listens for this form's native <code>submit</code> event directly (<code>leadFormSelector: "#sfLeadForm"</code>) and posts captured fields to Invoca itself. The matching <code>options.leadIngestionConfig</code> (with a real <code>leadFormId</code> / <code>leadIngestionUrl</code>) must be set in the Invoca Tag's custom code block for Tag <code>2967/1491503369</code> &mdash; that config lives on the Invoca platform, not in this repo.
+        <strong>Dev note:</strong> The <code>fieldMap</code> remap script in this page's <code>&lt;script&gt;</code> block is a local stand-in for what belongs in the real Invoca Tag's custom code editor (Tag <code>2967/1491503369</code> here; the client's real MDF-mapped ID lives on their tag). It listens for the form's native <code>formdata</code> event, renames each <code>item_meta[N]</code> key to its MDF key, and appends <code>invoca_attribution_id</code> via <code>Invoca.PNAPI.getAttributionId()</code> &mdash; before InvocaJS's own <code>leadIngestionConfig</code> listener (triggered by <code>leadFormSubmitEvent: "submit"</code>) reads the form. Once verified here, copy the <code>fieldMap</code> block as-is into the client's tag config.
       </div>
 
       <p class="form-notice">Internal test use only &mdash; Invoca Demo Network: 2967</p>
@@ -381,11 +395,13 @@
   </footer>
 
   <script>
-    const REDIRECT_ON_SUCCESS = "thank-you.html?mode=client-single";
+    const REDIRECT_ON_SUCCESS = "thank-you.html?mode=client-formidable";
 
-    const form = document.getElementById("sfLeadForm");
+    const form = document.getElementById("form_hm15a2333422");
     const submitBtn = document.getElementById("submit-btn");
     const statusToast = document.getElementById("status-toast");
+    const debugPanel = document.getElementById("debug-panel");
+    const debugTable = document.getElementById("debug-table");
 
     function setError(inputId, errId, condition) {
       const input = document.getElementById(inputId);
@@ -403,15 +419,17 @@
     function validate() {
       const first = document.getElementById("first-name").value.trim();
       const last  = document.getElementById("last-name").value.trim();
-      const phone = document.getElementById("phone").value.trim();
       const email = document.getElementById("email").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const postcode = document.getElementById("postal-code").value.trim();
 
-      const e1 = setError("first-name", "err-first-name", !first);
-      const e2 = setError("last-name",  "err-last-name",  !last);
-      const e3 = setError("phone",      "err-phone",      !/^[\d\s\-().+]{7,}$/.test(phone));
-      const e4 = setError("email",      "err-email",      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+      const e1 = setError("first-name",   "err-first-name",   !first);
+      const e2 = setError("last-name",    "err-last-name",    !last);
+      const e3 = setError("email",        "err-email",        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+      const e4 = setError("phone",        "err-phone",        !/^[\d\s\-().+]{7,}$/.test(phone));
+      const e5 = setError("postal-code",  "err-postal-code",  !postcode);
 
-      return !(e1 || e2 || e3 || e4);
+      return !(e1 || e2 || e3 || e4 || e5);
     }
 
     function setLoading(on) {
@@ -419,9 +437,66 @@
       submitBtn.classList.toggle("loading", on);
     }
 
+    // ── Stand-in for the Invoca Tag's custom code block ──────────────────
+    // In production this fieldMap (and the leadIngestionConfig it supports)
+    // lives on the Invoca platform, not in page source. It's inlined here
+    // purely so this replica form can be used to validate the remap logic
+    // before it's pasted into the client's real tag.
+    form.addEventListener('formdata', (e) => {
+      const fieldMap = {
+        'item_meta[1042]': 'first_name',
+        'item_meta[1043]': 'last_name',
+        'item_meta[1044]': 'email_address',
+        'item_meta[1045]': 'phone',           // must match leadFormPhoneField
+        'item_meta[1046]': 'postal_code',
+        'item_meta[1050]': 'message',
+      };
+
+      const rows = [];
+      for (const [formKey, mdfKey] of Object.entries(fieldMap)) {
+        const val = e.formData.get(formKey);
+        if (val) {
+          e.formData.append(mdfKey, val);
+          e.formData.delete(formKey);
+          rows.push([formKey, val, mdfKey]);
+        }
+      }
+
+      const attributionId = (window.Invoca && Invoca.PNAPI && Invoca.PNAPI.getAttributionId)
+        ? Invoca.PNAPI.getAttributionId()
+        : null;
+      e.formData.append('invoca_attribution_id', attributionId || '(Invoca not loaded / no attribution yet)');
+
+      renderDebug(rows, e.formData, attributionId);
+    });
+
+    function renderDebug(remappedRows, formData, attributionId) {
+      debugTable.innerHTML = '';
+      remappedRows.forEach(([formKey, val, mdfKey]) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="k">${formKey} &rarr; ${mdfKey}</td><td class="v">${val}</td>`;
+        debugTable.appendChild(tr);
+      });
+      const attrTr = document.createElement('tr');
+      attrTr.innerHTML = `<td class="k">invoca_attribution_id</td><td class="v added">${attributionId || '(not available)'}</td>`;
+      debugTable.appendChild(attrTr);
+
+      const leftoverBrackets = [...formData.keys()].filter(k => k.startsWith('item_meta['));
+      leftoverBrackets.forEach((k) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="k">${k}</td><td class="v">${formData.get(k)} <em>(unmapped, left as-is)</em></td>`;
+        debugTable.appendChild(tr);
+      });
+
+      debugPanel.classList.add('visible');
+    }
+    // ───────────────────────────────────────────────────────────────────
+
     // NOTE: preventDefault() only blocks the browser's default navigation.
-    // It does not stop InvocaJS's own "submit" listener from seeing this
-    // event and reading the form's field data first.
+    // It does not stop InvocaJS's own "submit" listener, and it does not
+    // stop the formdata listener above — that fires whenever a FormData
+    // object is constructed for this form, including by InvocaJS itself
+    // when it reads the form on submit.
     form.addEventListener("submit", (e) => {
       e.preventDefault();
 
@@ -432,14 +507,12 @@
 
       setLoading(true);
 
-      // No fetch here — this page hands off entirely to InvocaJS's client-side
-      // lead capture. We just simulate a brief submit delay for UX, then move on.
       window.setTimeout(() => {
         window.location.href = REDIRECT_ON_SUCCESS;
       }, 400);
     });
 
-    form.querySelectorAll("input").forEach((input) => {
+    form.querySelectorAll("input, textarea").forEach((input) => {
       input.addEventListener("input", () => {
         input.classList.remove("invalid");
         const errEl = document.getElementById("err-" + input.id);
