@@ -228,42 +228,6 @@
       color: var(--navy);
     }
 
-    /* ── Debug panel ── */
-    .debug-panel {
-      margin-top: 16px;
-      padding: 14px 16px;
-      background: var(--navy);
-      border-radius: 8px;
-      font-size: .78rem;
-      display: none;
-    }
-
-    .debug-panel.visible { display: block; }
-
-    .debug-panel .debug-title {
-      color: var(--teal);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-size: .68rem;
-      margin-bottom: 8px;
-    }
-
-    .debug-panel table { width: 100%; border-collapse: collapse; }
-
-    .debug-panel td {
-      padding: 3px 0;
-      font-family: "SF Mono", Menlo, monospace;
-      font-size: .76rem;
-      vertical-align: top;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-
-    .debug-panel td.k { color: rgba(255,255,255,.55); padding-right: 12px; white-space: nowrap; }
-    .debug-panel td.v { color: #b6f5ef; word-break: break-all; }
-    .debug-panel td.v.removed { color: #ff8a80; text-decoration: line-through; }
-    .debug-panel td.v.added { color: #8ef0c8; }
-
     /* ── Status toast ── */
     #status-toast {
       display: none;
@@ -319,7 +283,7 @@
     <div class="form-card">
       <p class="eyebrow">Client-Side Lead Capture &mdash; Formidable-style</p>
       <h1>Client-Side Form (Bracket Fields)</h1>
-      <p class="subtitle">Replicates a Formidable Forms (WordPress) field-naming pattern &mdash; <code>item_meta[N]</code> keys instead of readable names, and no hidden <code>invoca_attribution_id</code> input on the page. Both are handled by the remap script below, standing in for the Invoca Tag's custom code block.</p>
+      <p class="subtitle">Replicates a Formidable Forms (WordPress) field-naming pattern &mdash; <code>item_meta[N]</code> keys instead of readable names, and no hidden <code>invoca_attribution_id</code> input on the page. Both are handled entirely by the remap logic configured on the Invoca Tag itself.</p>
 
       <form id="form_hm15a2333422" novalidate>
 
@@ -374,16 +338,11 @@
 
         <div id="status-toast"></div>
 
-        <div class="debug-panel" id="debug-panel">
-          <div class="debug-title">formdata event &mdash; remap result</div>
-          <table id="debug-table"></table>
-        </div>
-
       </form>
 
       <!-- Developer config note -->
       <div class="api-config">
-        <strong>Dev note:</strong> The <code>fieldMap</code> remap script in this page's <code>&lt;script&gt;</code> block is a local stand-in for what belongs in the real Invoca Tag's custom code editor (Tag <code>2967/1491503369</code> here; the client's real MDF-mapped ID lives on their tag). It listens for the form's native <code>formdata</code> event, renames each <code>item_meta[N]</code> key to its MDF key, and appends <code>invoca_attribution_id</code> via <code>Invoca.PNAPI.getAttributionId()</code> &mdash; before InvocaJS's own <code>leadIngestionConfig</code> listener (triggered by <code>leadFormSubmitEvent: "submit"</code>) reads the form. Once verified here, copy the <code>fieldMap</code> block as-is into the client's tag config.
+        <strong>Dev note:</strong> This form has no local remap logic and no hidden <code>invoca_attribution_id</code> field &mdash; both are handled by the <code>fieldMap</code> + <code>formdata</code> listener configured directly in Invoca Tag <code>2967/1491503369</code>'s custom code editor. It renames each <code>item_meta[N]</code> key to its MDF key and appends <code>invoca_attribution_id</code> via <code>Invoca.PNAPI.getAttributionId()</code> before InvocaJS's own <code>leadIngestionConfig</code> listener (triggered by <code>leadFormSubmitEvent: "submit"</code>) reads the form.
       </div>
 
       <p class="form-notice">Internal test use only &mdash; Invoca Demo Network: 2967</p>
@@ -400,8 +359,6 @@
     const form = document.getElementById("form_hm15a2333422");
     const submitBtn = document.getElementById("submit-btn");
     const statusToast = document.getElementById("status-toast");
-    const debugPanel = document.getElementById("debug-panel");
-    const debugTable = document.getElementById("debug-table");
 
     function setError(inputId, errId, condition) {
       const input = document.getElementById(inputId);
@@ -437,66 +394,12 @@
       submitBtn.classList.toggle("loading", on);
     }
 
-    // ── Stand-in for the Invoca Tag's custom code block ──────────────────
-    // In production this fieldMap (and the leadIngestionConfig it supports)
-    // lives on the Invoca platform, not in page source. It's inlined here
-    // purely so this replica form can be used to validate the remap logic
-    // before it's pasted into the client's real tag.
-    form.addEventListener('formdata', (e) => {
-      const fieldMap = {
-        'item_meta[1042]': 'first_name',
-        'item_meta[1043]': 'last_name',
-        'item_meta[1044]': 'email_address',
-        'item_meta[1045]': 'phone',           // must match leadFormPhoneField
-        'item_meta[1046]': 'postal_code',
-        'item_meta[1050]': 'message',
-      };
-
-      const rows = [];
-      for (const [formKey, mdfKey] of Object.entries(fieldMap)) {
-        const val = e.formData.get(formKey);
-        if (val) {
-          e.formData.append(mdfKey, val);
-          e.formData.delete(formKey);
-          rows.push([formKey, val, mdfKey]);
-        }
-      }
-
-      const attributionId = (window.Invoca && Invoca.PNAPI && Invoca.PNAPI.getAttributionId)
-        ? Invoca.PNAPI.getAttributionId()
-        : null;
-      e.formData.append('invoca_attribution_id', attributionId || '(Invoca not loaded / no attribution yet)');
-
-      renderDebug(rows, e.formData, attributionId);
-    });
-
-    function renderDebug(remappedRows, formData, attributionId) {
-      debugTable.innerHTML = '';
-      remappedRows.forEach(([formKey, val, mdfKey]) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="k">${formKey} &rarr; ${mdfKey}</td><td class="v">${val}</td>`;
-        debugTable.appendChild(tr);
-      });
-      const attrTr = document.createElement('tr');
-      attrTr.innerHTML = `<td class="k">invoca_attribution_id</td><td class="v added">${attributionId || '(not available)'}</td>`;
-      debugTable.appendChild(attrTr);
-
-      const leftoverBrackets = [...formData.keys()].filter(k => k.startsWith('item_meta['));
-      leftoverBrackets.forEach((k) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="k">${k}</td><td class="v">${formData.get(k)} <em>(unmapped, left as-is)</em></td>`;
-        debugTable.appendChild(tr);
-      });
-
-      debugPanel.classList.add('visible');
-    }
-    // ───────────────────────────────────────────────────────────────────
-
     // NOTE: preventDefault() only blocks the browser's default navigation.
-    // It does not stop InvocaJS's own "submit" listener, and it does not
-    // stop the formdata listener above — that fires whenever a FormData
-    // object is constructed for this form, including by InvocaJS itself
-    // when it reads the form on submit.
+    // It does not stop InvocaJS's own "submit" listener — that fires
+    // whenever a FormData object is constructed for this form, including
+    // by InvocaJS itself when it reads the form on submit. The field
+    // remap + invoca_attribution_id logic lives entirely in the Invoca
+    // Tag's custom code block now (Tag 2967/1491503369), not on this page.
     form.addEventListener("submit", (e) => {
       e.preventDefault();
 
@@ -521,6 +424,21 @@
         statusToast.textContent = "";
       });
     });
+  </script>
+
+  <script>
+    // Preserve query string (e.g. ?invoca_rev=draft) across internal nav
+    // links so draft-mode testing survives clicking between pages instead
+    // of only working when the URL is typed directly.
+    (function () {
+      if (!window.location.search) return;
+      document.querySelectorAll('a[href$=".html"]').forEach(function (a) {
+        var href = a.getAttribute('href');
+        if (href && !href.includes('?')) {
+          a.setAttribute('href', href + window.location.search);
+        }
+      });
+    })();
   </script>
 
 </body>

@@ -556,5 +556,20 @@
     });
   </script>
 
+  <script>
+    // Preserve query string (e.g. ?invoca_rev=draft) across internal nav
+    // links so draft-mode testing survives clicking between pages instead
+    // of only working when the URL is typed directly.
+    (function () {
+      if (!window.location.search) return;
+      document.querySelectorAll('a[href$=".html"]').forEach(function (a) {
+        var href = a.getAttribute('href');
+        if (href && !href.includes('?')) {
+          a.setAttribute('href', href + window.location.search);
+        }
+      });
+    })();
+  </script>
+
 </body>
 </html>
