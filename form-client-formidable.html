@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Client-Side Form (Bracket Fields) | Invoca Test Site</title>
+  <title>Client-Side Forms (Bracket Fields, Multi-Form) | Invoca Test Site</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -84,13 +84,20 @@
       padding: 48px 24px;
     }
 
+    .page-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      width: 100%;
+      max-width: 560px;
+    }
+
     .form-card {
       background: var(--white);
       border-radius: 14px;
       box-shadow: 0 4px 24px rgba(0,0,0,.08);
       padding: 48px 44px;
       width: 100%;
-      max-width: 560px;
     }
 
     .form-card .eyebrow {
@@ -229,7 +236,7 @@
     }
 
     /* ── Status toast ── */
-    #status-toast {
+    [id$="-status-toast"] {
       display: none;
       margin-top: 20px;
       padding: 12px 16px;
@@ -238,8 +245,8 @@
       font-weight: 500;
     }
 
-    #status-toast.success { background: #edf7ed; color: var(--success); border: 1px solid #b8dfb8; display: block; }
-    #status-toast.error { background: #fdf0f0; color: var(--error); border: 1px solid #f0b8b8; display: block; }
+    [id$="-status-toast"].success { background: #edf7ed; color: var(--success); border: 1px solid #b8dfb8; display: block; }
+    [id$="-status-toast"].error { background: #fdf0f0; color: var(--error); border: 1px solid #f0b8b8; display: block; }
 
     /* ── Footer ── */
     footer {
@@ -278,71 +285,106 @@
     </a>
   </header>
 
-  <!-- ── Form ── -->
+  <!-- ── Forms ── -->
   <main>
-    <div class="form-card">
-      <p class="eyebrow">Client-Side Lead Capture &mdash; Formidable-style</p>
-      <h1>Client-Side Form (Bracket Fields)</h1>
-      <p class="subtitle">Replicates a Formidable Forms (WordPress) field-naming pattern &mdash; <code>item_meta[N]</code> keys instead of readable names, and no hidden <code>invoca_attribution_id</code> input on the page. Both are handled entirely by the remap logic configured on the Invoca Tag itself.</p>
+    <div class="page-wrap">
 
-      <form id="form_hm15a2333422" novalidate>
+      <div class="form-card">
+        <p class="eyebrow">Client-Side Lead Capture &mdash; Formidable-style</p>
+        <h1>Form A &mdash; Contact Form</h1>
+        <p class="subtitle">Both forms on this page share the class <code>.frm_pro_form</code> and no id-based selector &mdash; mirroring the real client's shared-selector setup, and specifically the <code>/home-care-costs-calculator</code> page where 3 forms coexist. Neither has a hidden <code>invoca_attribution_id</code> input; both rely entirely on the tag's custom code.</p>
 
-        <!-- No hidden invoca_attribution_id field on purpose — it's appended
-             by the formdata listener below, same as the real client site. -->
+        <form id="form_hm15a2333422" class="frm_pro_form" novalidate>
 
-        <!-- A couple of unmapped hidden fields, to prove the remap script
-             leaves fields it doesn't know about alone. -->
-        <input type="hidden" name="item_meta[1053]" value="Home Page Test" />
-        <input type="hidden" name="item_meta[1057]" value="Web Form" />
+          <!-- A couple of unmapped hidden fields, to prove the remap script
+               leaves fields it doesn't know about alone. -->
+          <input type="hidden" name="item_meta[1053]" value="Home Page Test" />
+          <input type="hidden" name="item_meta[1057]" value="Web Form" />
 
-        <div class="field-row">
-          <div class="field">
-            <label for="first-name">First Name <span class="field-name">item_meta[1042]</span></label>
-            <input type="text" id="first-name" name="item_meta[1042]" placeholder="Jane" autocomplete="given-name" />
-            <span class="field-error" id="err-first-name">First name is required.</span>
+          <div class="field-row">
+            <div class="field">
+              <label for="a-first-name">First Name <span class="field-name">item_meta[1042]</span></label>
+              <input type="text" id="a-first-name" name="item_meta[1042]" placeholder="Jane" autocomplete="given-name" />
+              <span class="field-error" id="err-a-first-name">First name is required.</span>
+            </div>
+            <div class="field">
+              <label for="a-last-name">Last Name <span class="field-name">item_meta[1043]</span></label>
+              <input type="text" id="a-last-name" name="item_meta[1043]" placeholder="Smith" autocomplete="family-name" />
+              <span class="field-error" id="err-a-last-name">Last name is required.</span>
+            </div>
           </div>
+
           <div class="field">
-            <label for="last-name">Last Name <span class="field-name">item_meta[1043]</span></label>
-            <input type="text" id="last-name" name="item_meta[1043]" placeholder="Smith" autocomplete="family-name" />
-            <span class="field-error" id="err-last-name">Last name is required.</span>
+            <label for="a-email">Email Address <span class="field-name">item_meta[1044]</span></label>
+            <input type="email" id="a-email" name="item_meta[1044]" placeholder="jane@example.com" autocomplete="email" />
+            <span class="field-error" id="err-a-email">A valid email address is required.</span>
           </div>
-        </div>
 
-        <div class="field">
-          <label for="email">Email Address <span class="field-name">item_meta[1044]</span></label>
-          <input type="email" id="email" name="item_meta[1044]" placeholder="jane@example.com" autocomplete="email" />
-          <span class="field-error" id="err-email">A valid email address is required.</span>
-        </div>
+          <div class="field">
+            <label for="a-phone">Phone Number <span class="field-name">item_meta[1045]</span></label>
+            <input type="text" id="a-phone" name="item_meta[1045]" placeholder="020 7946 0958" autocomplete="tel" />
+            <span class="field-error" id="err-a-phone">A valid phone number is required.</span>
+          </div>
 
-        <div class="field">
-          <label for="phone">Phone Number <span class="field-name">item_meta[1045]</span></label>
-          <input type="text" id="phone" name="item_meta[1045]" placeholder="020 7946 0958" autocomplete="tel" />
-          <span class="field-error" id="err-phone">A valid phone number is required.</span>
-        </div>
+          <div class="field">
+            <label for="a-postal-code">Postal Code <span class="field-name">item_meta[1046]</span></label>
+            <input type="text" id="a-postal-code" name="item_meta[1046]" placeholder="SW1A 1AA" autocomplete="postal-code" />
+            <span class="field-error" id="err-a-postal-code">A postal code is required.</span>
+          </div>
 
-        <div class="field">
-          <label for="postal-code">Postal Code <span class="field-name">item_meta[1046]</span></label>
-          <input type="text" id="postal-code" name="item_meta[1046]" placeholder="SW1A 1AA" autocomplete="postal-code" />
-          <span class="field-error" id="err-postal-code">A postal code is required.</span>
-        </div>
+          <div class="field">
+            <label for="a-message">Message <span class="field-name">item_meta[1050]</span></label>
+            <textarea id="a-message" name="item_meta[1050]" rows="4" placeholder="How can we help?"></textarea>
+          </div>
 
-        <div class="field">
-          <label for="message">Message <span class="field-name">item_meta[1050]</span></label>
-          <textarea id="message" name="item_meta[1050]" rows="4" placeholder="How can we help?"></textarea>
-        </div>
+          <button type="submit" class="submit-btn" id="a-submit-btn">
+            <span class="btn-label">Submit</span>
+            <span class="spinner"></span>
+          </button>
 
-        <button type="submit" class="submit-btn" id="submit-btn">
-          <span class="btn-label">Submit</span>
-          <span class="spinner"></span>
-        </button>
+          <div id="a-status-toast"></div>
+        </form>
+      </div>
 
-        <div id="status-toast"></div>
+      <div class="form-card">
+        <p class="eyebrow">Client-Side Lead Capture &mdash; Formidable-style</p>
+        <h1>Form B &mdash; Guide Download</h1>
+        <p class="subtitle">Deliberately leaner and structurally different from Form A &mdash; different <code>item_meta[N]</code> numbers, no last name or postal code field at all (not just empty; the fields don't exist), testing that the remap's missing-field guard and the id-based form lookup both generalize correctly.</p>
 
-      </form>
+        <form id="form_hm_sandboxB" class="frm_pro_form" novalidate>
+
+          <input type="hidden" name="item_meta[2010]" value="Guide Download Test" />
+
+          <div class="field">
+            <label for="b-first-name">First Name <span class="field-name">item_meta[2001]</span></label>
+            <input type="text" id="b-first-name" name="item_meta[2001]" placeholder="Jane" autocomplete="given-name" />
+            <span class="field-error" id="err-b-first-name">First name is required.</span>
+          </div>
+
+          <div class="field">
+            <label for="b-email">Email Address <span class="field-name">item_meta[2002]</span></label>
+            <input type="email" id="b-email" name="item_meta[2002]" placeholder="jane@example.com" autocomplete="email" />
+            <span class="field-error" id="err-b-email">A valid email address is required.</span>
+          </div>
+
+          <div class="field">
+            <label for="b-phone">Phone Number <span class="field-name">item_meta[2003]</span></label>
+            <input type="text" id="b-phone" name="item_meta[2003]" placeholder="020 7946 0958" autocomplete="tel" />
+            <span class="field-error" id="err-b-phone">A valid phone number is required.</span>
+          </div>
+
+          <button type="submit" class="submit-btn" id="b-submit-btn">
+            <span class="btn-label">Submit</span>
+            <span class="spinner"></span>
+          </button>
+
+          <div id="b-status-toast"></div>
+        </form>
+      </div>
 
       <!-- Developer config note -->
       <div class="api-config">
-        <strong>Dev note:</strong> This form has no local remap logic and no hidden <code>invoca_attribution_id</code> field &mdash; both are handled by the <code>fieldMap</code> + <code>formdata</code> listener configured directly in Invoca Tag <code>2967/1491503369</code>'s custom code editor. It renames each <code>item_meta[N]</code> key to its MDF key and appends <code>invoca_attribution_id</code> via <code>Invoca.PNAPI.getAttributionId()</code> before InvocaJS's own <code>leadIngestionConfig</code> listener (triggered by <code>leadFormSubmitEvent: "submit"</code>) reads the form.
+        <strong>Dev note:</strong> Neither form has local remap logic or a hidden <code>invoca_attribution_id</code> field &mdash; both are handled by a shared <code>fieldMap</code> lookup + delegated <code>formdata</code> listener configured directly in Invoca Tag <code>2967/1491503369</code>'s custom code editor, keyed by each form's own element <code>id</code> (not a hidden "form name" field). <code>leadFormSelector</code> is set to <code>.frm_pro_form</code> so one config covers both forms on this page.
       </div>
 
       <p class="form-notice">Internal test use only &mdash; Invoca Demo Network: 2967</p>
@@ -354,76 +396,82 @@
   </footer>
 
   <script>
-    const REDIRECT_ON_SUCCESS = "thank-you.html?mode=client-formidable";
-
-    const form = document.getElementById("form_hm15a2333422");
-    const submitBtn = document.getElementById("submit-btn");
-    const statusToast = document.getElementById("status-toast");
-
-    function setError(inputId, errId, condition) {
-      const input = document.getElementById(inputId);
-      const err = document.getElementById(errId);
-      if (condition) {
-        input.classList.add("invalid");
-        err.classList.add("visible");
-        return true;
-      }
-      input.classList.remove("invalid");
-      err.classList.remove("visible");
-      return false;
-    }
-
-    function validate() {
-      const first = document.getElementById("first-name").value.trim();
-      const last  = document.getElementById("last-name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const postcode = document.getElementById("postal-code").value.trim();
-
-      const e1 = setError("first-name",   "err-first-name",   !first);
-      const e2 = setError("last-name",    "err-last-name",    !last);
-      const e3 = setError("email",        "err-email",        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
-      const e4 = setError("phone",        "err-phone",        !/^[\d\s\-().+]{7,}$/.test(phone));
-      const e5 = setError("postal-code",  "err-postal-code",  !postcode);
-
-      return !(e1 || e2 || e3 || e4 || e5);
-    }
-
-    function setLoading(on) {
-      submitBtn.disabled = on;
-      submitBtn.classList.toggle("loading", on);
-    }
-
     // NOTE: preventDefault() only blocks the browser's default navigation.
     // It does not stop InvocaJS's own "submit" listener — that fires
-    // whenever a FormData object is constructed for this form, including
-    // by InvocaJS itself when it reads the form on submit. The field
+    // whenever a FormData object is constructed for a matching form,
+    // including by InvocaJS itself when it reads the form on submit. All
     // remap + invoca_attribution_id logic lives entirely in the Invoca
-    // Tag's custom code block now (Tag 2967/1491503369), not on this page.
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
+    // Tag's custom code block (Tag 2967/1491503369), not on this page.
+    function wireUpDemoForm(formId, requiredFieldIds, redirectMode) {
+      const form = document.getElementById(formId);
+      const submitBtn = form.querySelector(".submit-btn");
+      const statusToast = form.querySelector("[id$='-status-toast']");
 
-      statusToast.className = "";
-      statusToast.textContent = "";
+      function setError(inputId, condition) {
+        const input = document.getElementById(inputId);
+        const err = document.getElementById("err-" + inputId);
+        if (condition) {
+          input.classList.add("invalid");
+          if (err) err.classList.add("visible");
+        } else {
+          input.classList.remove("invalid");
+          if (err) err.classList.remove("visible");
+        }
+        return condition;
+      }
 
-      if (!validate()) return;
+      function validate() {
+        let hasError = false;
+        requiredFieldIds.forEach(({ id, test }) => {
+          const val = document.getElementById(id).value.trim();
+          hasError = setError(id, !test(val)) || hasError;
+        });
+        return !hasError;
+      }
 
-      setLoading(true);
-
-      window.setTimeout(() => {
-        window.location.href = REDIRECT_ON_SUCCESS;
-      }, 400);
-    });
-
-    form.querySelectorAll("input, textarea").forEach((input) => {
-      input.addEventListener("input", () => {
-        input.classList.remove("invalid");
-        const errEl = document.getElementById("err-" + input.id);
-        if (errEl) errEl.classList.remove("visible");
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
         statusToast.className = "";
         statusToast.textContent = "";
+
+        if (!validate()) return;
+
+        submitBtn.disabled = true;
+        submitBtn.classList.add("loading");
+
+        window.setTimeout(() => {
+          window.location.href = "thank-you.html?mode=" + redirectMode;
+        }, 400);
       });
-    });
+
+      form.querySelectorAll("input, textarea").forEach((input) => {
+        input.addEventListener("input", () => {
+          input.classList.remove("invalid");
+          const errEl = document.getElementById("err-" + input.id);
+          if (errEl) errEl.classList.remove("visible");
+          statusToast.className = "";
+          statusToast.textContent = "";
+        });
+      });
+    }
+
+    const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    const isPhone = (v) => /^[\d\s\-().+]{7,}$/.test(v);
+    const notEmpty = (v) => !!v;
+
+    wireUpDemoForm("form_hm15a2333422", [
+      { id: "a-first-name",   test: notEmpty },
+      { id: "a-last-name",    test: notEmpty },
+      { id: "a-email",        test: isEmail },
+      { id: "a-phone",        test: isPhone },
+      { id: "a-postal-code",  test: notEmpty },
+    ], "client-formidable-a");
+
+    wireUpDemoForm("form_hm_sandboxB", [
+      { id: "b-first-name", test: notEmpty },
+      { id: "b-email",      test: isEmail },
+      { id: "b-phone",      test: isPhone },
+    ], "client-formidable-b");
   </script>
 
   <script>
